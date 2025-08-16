@@ -1,7 +1,7 @@
 {
-    "name" : "oneself",
+    "name" : "生活管理",
     "appid" : "",
-    "description" : "",
+    "description" : "一个温暖的生活管理应用",
     "versionName" : "1.0.0",
     "versionCode" : "100",
     "transformPx" : false,
