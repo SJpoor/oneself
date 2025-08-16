@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生活管理 - 待办清单功能</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#FF8A65',      // 暖橙色
+                        secondary: '#FFB74D',   // 暖黄色
+                        accent: '#FFAB91',      // 桃色
+                        warm: '#FFF3E0',        // 暖白色
+                        warmGray: '#795548',    // 暖灰色
+                        deepWarm: '#E65100',    // 深橙色
+                        success: '#66BB6A',     // 完成绿色
+                        urgent: '#FF7043',      // 紧急橙红色
+                        important: '#FFA726',   // 重要橙色
+                        normal: '#FFB74D',      // 普通黄色
+                        low: '#A5D6A7',        // 低优先级绿色
+                    },
+                    fontFamily: {
+                        sans: ['SF Pro Display', 'PingFang SC', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', 'PingFang SC', system-ui, sans-serif;
+        }
+        
+        .glass-morphism {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        
+        .warm-gradient {
+            background: linear-gradient(135deg, #FFE0B2 0%, #FFCC80 50%, #FFB74D 100%);
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 138, 101, 0.2);
+        }
+        
+        .shadow-warm {
+            box-shadow: 0 8px 32px rgba(255, 138, 101, 0.15);
+        }
+        
+        .todo-gradient {
+            background: linear-gradient(135deg, #FF8A65, #FFB74D);
+        }
+        
+        .priority-urgent {
+            background: linear-gradient(135deg, #FF7043, #FF8A65);
+        }
+        
+        .priority-important {
+            background: linear-gradient(135deg, #FFA726, #FFB74D);
+        }
+        
+        .priority-normal {
+            background: linear-gradient(135deg, #FFB74D, #FFCC80);
+        }
+        
+        .priority-low {
+            background: linear-gradient(135deg, #A5D6A7, #C8E6C9);
+        }
+        
+        .success-gradient {
+            background: linear-gradient(135deg, #66BB6A, #81C784);
+        }
+        
+        .todo-item {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .todo-item:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 25px rgba(255, 138, 101, 0.15);
+        }
+        
+        .todo-item.completed {
+            opacity: 0.6;
+        }
+        
+        .todo-item.completed .todo-text {
+            text-decoration: line-through;
+            color: #9CA3AF;
+        }
+        
+        .checkbox {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid #FFB74D;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .checkbox.checked {
+            background: linear-gradient(135deg, #66BB6A, #81C784);
+            border-color: #66BB6A;
+        }
+        
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+        
+        .priority-selector {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        
+        .priority-btn {
+            padding: 12px;
+            border-radius: 16px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .priority-btn.selected {
+            border-color: white;
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+        
+        .category-btn {
+            aspect-ratio: 1;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .category-btn.selected {
+            border-color: #FF8A65;
+            transform: scale(1.05);
+        }
+        
+        .animate-bounce-in {
+            animation: bounceIn 0.6s ease-out;
+        }
+        
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.1); }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .streak-counter {
+            background: linear-gradient(135deg, #FFA726, #FFB74D);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .floating-action {
+            position: fixed;
+            bottom: 100px;
+            right: 24px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #FF8A65, #FFB74D);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 25px rgba(255, 138, 101, 0.4);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .floating-action:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 35px rgba(255, 138, 101, 0.5);
+        }
+    </style>
+</head>
+<body class="warm-gradient min-h-screen">
+    
+    <!-- App Container -->
+    <div class="flex justify-center gap-6 p-4 flex-wrap">
+        
+        <!-- 页面1: 添加待办 -->
+        <div class="w-80 h-screen bg-white rounded-3xl shadow-warm overflow-hidden relative">
+            <!-- 头部 -->
+            <div class="flex items-center justify-between p-6 pt-12">
+                <button class="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center">
+                    <img src="https://unpkg.com/lucide-static@latest/icons/arrow-left.svg" alt="back" class="w-5 h-5">
+                </button>
+                <h1 class="text-lg font-semibold text-gray-800">新建待办</h1>
+                <button class="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center">
+                    <img src="https://unpkg.com/lucide-static@latest/icons/clock.svg" alt="timer" class="w-5 h-5">
+                </button>
+            </div>
+
+            <!-- 任务标题输入 -->
+            <div class="px-6 pb-6">
+                <div class="glass-card rounded-2xl p-4">
+                    <input 
+                        type="text" 
+                        placeholder="今天要做什么呢？" 
+                        class="w-full text-lg font-medium bg-transparent text-gray-800 placeholder-gray-400 outline-none"
+                        value="完成项目设计稿"
+                    >
+                </div>
+            </div>
+
+            <!-- 优先级选择 -->
+            <div class="px-6 pb-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">优先级</h3>
+                <div class="priority-selector">
+                    <div class="priority-btn priority-urgent selected">
+                        <div class="flex items-center gap-2 mb-2">
+                            <div class="w-3 h-3 bg-white rounded-full"></div>
+                            <span class="text-white font-medium">紧急</span>
+                        </div>
+                        <span class="text-white text-xs opacity-80">今天必须完成</span>
+                    </div>
+                    <div class="priority-btn priority-important bg-gray-50">
+                        <div class="flex items-center gap-2 mb-2">
+                            <div class="w-3 h-3 bg-orange-400 rounded-full"></div>
+                            <span class="text-gray-700 font-medium">重要</span>
+                        </div>
+                        <span class="text-gray-500 text-xs">本周内完成</span>
+                    </div>
+                    <div class="priority-btn priority-normal bg-gray-50">
+                        <div class="flex items-center gap-2 mb-2">
+                            <div class="w-3 h-3 bg-yellow-400 rounded-full"></div>
+                            <span class="text-gray-700 font-medium">普通</span>
+                        </div>
+                        <span class="text-gray-500 text-xs">有时间就做</span>
+                    </div>
+                    <div class="priority-btn priority-low bg-gray-50">
+                        <div class="flex items-center gap-2 mb-2">
+                            <div class="w-3 h-3 bg-green-400 rounded-full"></div>
+                            <span class="text-gray-700 font-medium">较低</span>
+                        </div>
+                        <span class="text-gray-500 text-xs">想起来再做</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 分类选择 -->
+            <div class="px-6 pb-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">分类</h3>
+                <div class="category-grid">
+                    <div class="category-btn bg-blue-50 selected">
+                        <div class="w-8 h-8 bg-blue-100 rounded-xl flex items-center justify-center">
+                            <img src="https://unpkg.com/lucide-static@latest/icons/briefcase.svg" alt="work" class="w-4 h-4 text-blue-600">
+                        </div>
+                        <span class="text-xs font-medium text-gray-700">工作</span>
+                    </div>
+                    <div class="category-btn bg-pink-50">
+                        <div class="w-8 h-8 bg-pink-100 rounded-xl flex items-center justify-center">
+                            <img src="https://unpkg.com/lucide-static@latest/icons/heart.svg" alt="life" class="w-4 h-4 text-pink-600">
+                        </div>
+                        <span class="text-xs font-medium text-gray-700">生活</span>
+                    </div>
+                    <div class="category-btn bg-green-50">
+                        <div class="w-8 h-8 bg-green-100 rounded-xl flex items-center justify-center">
+                            <img src="https://unpkg.com/lucide-static@latest/icons/book.svg" alt="study" class="w-4 h-4 text-green-600">
+                        </div>
+                        <span class="text-xs font-medium text-gray-700">学习</span>
+                    </div>
+                    <div class="category-btn bg-purple-50">
+                        <div class="w-8 h-8 bg-purple-100 rounded-xl flex items-center justify-center">
+                            <img src="https://unpkg.com/lucide-static@latest/icons/dumbbell.svg" alt="health" class="w-4 h-4 text-purple-600">
+                        </div>
+                        <span class="text-xs font-medium text-gray-700">健康</span>
+                    </div>
+                    <div class="category-btn bg-yellow-50">
+                        <div class="w-8 h-8 bg-yellow-100 rounded-xl flex items-center justify-center">
+                            <img src="https://unpkg.com/lucide-static@latest/icons/shopping-cart.svg" alt="shopping" class="w-4 h-4 text-yellow-600">
+                        </div>
+                        <span class="text-xs font-medium text-gray-700">购物</span>
+                    </div>
+                    <div class="category-btn bg-indigo-50">
+                        <div class="w-8 h-8 bg-indigo-100 rounded-xl flex items-center justify-center">
+                            <img src="https://unpkg.com/lucide-static@latest/icons/plane.svg" alt="travel" class="w-4 h-4 text-indigo-600">
+                        </div>
+                        <span class="text-xs font-medium text-gray-700">旅行</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 截止时间 -->
+            <div class="px-6 pb-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">截止时间</h3>
+                <div class="glass-card rounded-2xl p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="font-medium text-gray-800">2024年12月18日</p>
+                            <p class="text-sm text-gray-500">今天 18:00 前完成</p>
+                        </div>
+                        <img src="https://unpkg.com/lucide-static@latest/icons/calendar.svg" alt="calendar" class="w-6 h-6 text-gray-400">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 备注 -->
+            <div class="px-6 pb-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">备注</h3>
+                <div class="glass-card rounded-2xl p-4">
+                    <textarea 
+                        placeholder="添加一些备注信息..."
+                        class="w-full h-20 bg-transparent text-gray-700 placeholder-gray-400 outline-none resize-none"
+                    >需要包含首页、列表页和详情页的设计，注意保持风格统一</textarea>
+                </div>
+            </div>
+
+            <!-- 底部按钮 -->
+            <div class="absolute bottom-6 left-6 right-6">
+                <button class="w-full py-4 todo-gradient text-white font-semibold rounded-2xl active:scale-95 transition-transform">
+                    创建待办
+                </button>
+            </div>
+        </div>
+
+        <!-- 页面2: 待办列表 -->
+        <div class="w-80 h-screen bg-white rounded-3xl shadow-warm overflow-hidden relative">
+            <!-- 头部 -->
+            <div class="flex items-center justify-between p-6 pt-12">
+                <h1 class="text-xl font-bold text-gray-800">待办清单</h1>
+                <div class="flex gap-2">
+                    <button class="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center">
+                        <img src="https://unpkg.com/lucide-static@latest/icons/filter.svg" alt="filter" class="w-5 h-5">
+                    </button>
+                    <button class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+                        <img src="https://unpkg.com/lucide-static@latest/icons/plus.svg" alt="add" class="w-5 h-5 filter invert">
+                    </button>
+                </div>
+            </div>
+
+            <!-- 进度概览 -->
+            <div class="px-6 pb-6">
+                <div class="glass-card rounded-2xl p-5">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800">今日进度</h3>
+                        <button class="text-primary text-sm font-medium">查看统计 ></button>
+                    </div>
+                    <div class="flex items-center gap-6">
+                        <!-- 圆形进度条 -->
+                        <div class="relative w-20 h-20">
+                            <svg class="progress-ring w-20 h-20" viewBox="0 0 36 36">
+                                <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" 
+                                      fill="none" stroke="#f3f4f6" stroke-width="3"/>
+                                <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" 
+                                      fill="none" stroke="#FF8A65" stroke-width="3" 
+                                      stroke-dasharray="75, 25" stroke-linecap="round"/>
+                            </svg>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <span class="text-lg font-bold text-primary">75%</span>
+                            </div>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex justify-between text-sm mb-2">
+                                <span class="text-gray-600">已完成</span>
+                                <span class="font-semibold text-success">6/8</span>
+                            </div>
+                            <div class="flex justify-between text-sm mb-2">
+                                <span class="text-gray-600">进行中</span>
+                                <span class="font-semibold text-primary">2</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-600">连续完成</span>
+                                <span class="font-semibold streak-counter">5天</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 筛选标签 -->
+            <div class="px-6 pb-4">
+                <div class="flex gap-2 overflow-x-auto">
+                    <button class="px-4 py-2 bg-primary text-white rounded-full text-sm font-medium whitespace-nowrap">全部</button>
+                    <button class="px-4 py-2 bg-gray-100 text-gray-600 rounded-full text-sm font-medium whitespace-nowrap">待完成</button>
+                    <button class="px-4 py-2 bg-gray-100 text-gray-600 rounded-full text-sm font-medium whitespace-nowrap">已完成</button>
+                    <button class="px-4 py-2 bg-gray-100 text-gray-600 rounded-full text-sm font-medium whitespace-nowrap">紧急</button>
+                    <button class="px-4 py-2 bg-gray-100 text-gray-600 rounded-full text-sm font-medium whitespace-nowrap">工作</button>
+                </div>
+            </div>
+
+            <!-- 待办列表 -->
+            <div class="px-6 pb-20 space-y-3">
+                <div class="text-sm font-medium text-gray-600 mb-3">今天 12月18日</div>
+                
+                <!-- 待办项 1 - 紧急未完成 -->
+                <div class="todo-item glass-card rounded-2xl p-4 border-l-4 border-red-400">
+                    <div class="flex items-start gap-3">
+                        <div class="checkbox mt-1">
+                            <img src="https://unpkg.com/lucide-static@latest/icons/circle.svg" alt="unchecked" class="w-3 h-3 text-gray-400">
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-2">
+                                <h4 class="font-medium text-gray-800 todo-text">完成项目设计稿</h4>
+                                <span class="px-2 py-1 bg-red-100 text-red-600 rounded-full text-xs">紧急</span>
+                            </div>
+                            <div class="flex items-center gap-3 text-sm text-gray-500">
+                                <div class="flex items-center gap-1">
+                                    <img src="https://unpkg.com/lucide-static@latest/icons/briefcase.svg" alt="work" class="w-3 h-3">
+                                    <span>工作</span>
+                                </div>
+                                <div class="flex items-center gap-1">
+                                    <img src="https://unpkg.com/lucide-static@latest/icons/clock.svg" alt="time" class="w-3 h-3">
+                                    <span>18:00 前</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="w-8 h-8 rounded-xl bg-gray-100 flex items-center justify-center">
+                            <img src="https://unpkg.com/lucide-static@latest/icons/more-horizontal.svg" alt="more" class="w-4 h-4">
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 待办项 2 - 重要未完成 -->
+                <div class="todo-item glass-card rounded-2xl p-4 border-l-4 border-orange-400">
+                    <div class="flex items-start gap-3">
+                        <div class="checkbox mt-1">
+                            <img src="https://unpkg.com/lucide-static@latest/icons/circle.svg" alt="unchecked" class="w-3 h-3 text-gray-400">
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-2">
+                                <h4 class="font-medium text-gray-800 todo-text">准备周会资料</h4>
+                                <span class="px-2 py-1 bg-orange-100 text-orange-600 rounded-full text-xs">重要</span>
+                            </div>
+                            <div class="flex items-center gap-3 text-sm text-gray-500">
+                                <div class="flex items-center gap-1">
+                                    <img src="https://unpkg.com/lucide-static@latest/icons/briefcase.svg" alt="work" class="w-3 h-3">
+                                    <span>工作</span>
+                                </div>
+                                <div class="flex items-center gap-1">
+                                    <img src="https://unpkg.com/lucide-static@latest/icons/calendar.svg" alt="date" class="w-3 h-3">
+                                    <span>明天</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="w-8 h-8 rounded-xl bg-gray-100 flex items-center justify-center">
+                            <img src="https://unpkg.com/lucide-static@latest/icons/more-horizontal.svg" alt="more" class="w-4 h-4">
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 待办项 3 - 已完成 -->
+                <div class="todo-item completed glass-card rounded-2xl p-4 border-l-4 border-green-400">
+                    <div class="flex items-start gap-3">
+                        <div class="checkbox checked mt-1">
+                            <img src="https://unpkg.com/lucide-static@latest/icons/check.svg" alt="checked" class="w-3 h-3 text-white">
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-2">
+                                <h4 class="font-medium text-gray-800 todo-text">回复客户邮件</h4>
+                                <span class="px-2 py-1 bg-green-100 text-green-600 rounded-full text-xs">已完成</span>
+                            </div>
+                            <div class="flex items-center gap-3 text-sm text-gray-500">
+                                <div class="flex items-center gap-1">
+                                    <img src="https://unpkg.com/lucide-static@latest/icons/briefcase.svg" alt="work" class="w-3 h-3">
+                                    <span>工作</span>
+                                </div>
+                                <div class="flex items-center gap-1">
+                                    <img src="https://unpkg.com/lucide-static@latest/icons/check-circle.svg" alt="completed" class="w-3 h-3">
+                                    <span>14:30 完成</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="w-8 h-8 rounded-xl bg-gray-100 flex items-center justify-center">
+                            <img src="https://unpkg.com/lucide-static@latest/icons/more-horizontal.svg" alt="more" class="w-4 h-4">
+                        </button>
+                    </div>
+                </div>
+
+                <div class="text-sm font-medium text-gray-600 mb-3 mt-6">昨天 12月17日</div>
+
+                <!-- 待办项 4 - 已完成 -->
+                <div class="todo-item completed glass-card rounded-2xl p-4 border-l-4 border-green-400">
+                    <div class="flex items-start gap-3">
+                        <div class="checkbox checked mt-1">
+                            <img src="https://unpkg.com/lucide-static@latest/icons/check.svg" alt="checked" class="w-3 h-3 text-white">
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-2">
+                                <h4 class="font-medium text-gray-800 todo-text">跑步30分钟</h4>
+                                <span class="px-2 py-1 bg-green-100 text-green-600 rounded-full text-xs">已完成</span>
+                            </div>
+                            <div class="flex items-center gap-3 text-sm text-gray-500">
+                                <div class="flex items-center gap-1">
+                                    <img src="https://unpkg.com/lucide-static@latest/icons/dumbbell.svg" alt="health" class="w-3 h-3">
+                                    <span>健康</span>
+                                </div>
+                                <div class="flex items-center gap-1">
+                                    <img src="https://unpkg.com/lucide-static@latest/icons/check-circle.svg" alt="completed" class="w-3 h-3">
+                                    <span>19:30 完成</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="w-8 h-8 rounded-xl bg-gray-100 flex items-center justify-center">
+                            <img src="https://unpkg.com/lucide-static@latest/icons/more-horizontal.svg" alt="more" class="w-4 h-4">
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 待办项 5 - 普通已完成 -->
+                <div class="todo-item completed glass-card rounded-2xl p-4 border-l-4 border-green-400">
+                    <div class="flex items-start gap-3">
+                        <div class="checkbox checked mt-1">
+                            <img src="https://unpkg.com/lucide-static@latest/icons/check.svg" alt="checked" class="w-3 h-3 text-white">
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-2">
+                                <h4 class="font-medium text-gray-800 todo-text">买日用品</h4>
+                                <span class="px-2 py-1 bg-green-100 text-green-600 rounded-full text-xs">已完成</span>
+                            </div>
+                            <div class="flex items-center gap-3 text-sm text-gray-500">
+                                <div class="flex items-center gap-1">
+                                    <img src="https://unpkg.com/lucide-static@latest/icons/shopping-cart.svg" alt="shopping" class="w-3 h-3">
+                                    <span>购物</span>
+                                </div>
+                                <div class="flex items-center gap-1">
+                                    <img src="https://unpkg.com/lucide-static@latest/icons/check-circle.svg" alt="completed" class="w-3 h-3">
+                                    <span>16:45 完成</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="w-8 h-8 rounded-xl bg-gray-100 flex items-center justify-center">
+                            <img src="https://unpkg.com/lucide-static@latest/icons/more-horizontal.svg" alt="more" class="w-4 h-4">
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 浮动添加按钮 -->
+            <div class="floating-action">
+                <img src="https://unpkg.com/lucide-static@latest/icons/plus.svg" alt="add" class="w-6 h-6 filter invert">
+            </div>
+
+            <!-- 底部导航 -->
+            <div class="absolute bottom-0 left-0 right-0 bg-white/80 backdrop-blur-lg border-t border-gray-200">
+                <div class="flex justify-around items-center py-3">
+                    <div class="flex flex-col items-center gap-1">
+                        <img src="https://unpkg.com/lucide-static@latest/icons/home.svg" alt="home" class="w-6 h-6 text-gray-400">
+                        <span class="text-xs text-gray-400">首页</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-1">
+                        <img src="https://unpkg.com/lucide-static@latest/icons/wallet.svg" alt="wallet" class="w-6 h-6 text-gray-400">
+                        <span class="text-xs text-gray-400">记账</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-1">
+                        <img src="https://unpkg.com/lucide-static@latest/icons/book-open.svg" alt="diary" class="w-6 h-6 text-gray-400">
+                        <span class="text-xs text-gray-400">日记</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-1">
+                        <div class="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center">
+                            <img src="https://unpkg.com/lucide-static@latest/icons/check-circle.svg" alt="todo" class="w-4 h-4 filter invert">
+                        </div>
+                        <span class="text-xs text-primary font-medium">待办</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 页面3: 编辑待办 -->
+        <div class="w-80 h-screen bg-white rounded-3xl shadow-warm overflow-hidden relative">
+            <!-- 头部 -->
+            <div class="flex items-center justify-between p-6 pt-12">
+                <button class="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center">
+                    <img src="https://unpkg.com/lucide-static@latest/icons/arrow-left.svg" alt="back" class="w-5 h-5">
+                </button>
+                <h1 class="text-lg font-semibold text-gray-800">编辑待办</h1>
+                <button class="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center">
+                    <img src="https://unpkg.com/lucide-static@latest/icons/trash-2.svg" alt="delete" class="w-5 h-5 text-red-500">
+                </button>
+            </div>
+
+            <!-- 原待办信息 -->
+            <div class="px-6 pb-6">
+                <div class="glass-card rounded-2xl p-4 border-l-4 border-red-400">
+                    <div class="flex items-center gap-2 mb-2">
+                        <h3 class="font-semibold text-gray-800">完成项目设计稿</h3>
+                        <span class="px-2 py-1 bg-red-100 text-red-600 rounded-full text-xs">紧急</span>
+                    </div>
+                    <div class="flex items-center gap-3 text-sm text-gray-500 mb-2">
+                        <div class="flex items-center gap-1">
+                            <img src="https://unpkg.com/lucide-static@latest/icons/briefcase.svg" alt="work" class="w-3 h-3">
+                            <span>工作</span>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <img src="https://unpkg.com/lucide-static@latest/icons/clock.svg" alt="time" class="w-3 h-3">
+                            <span>今天 18:00 前</span>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-600">需要包含首页、列表页和详情页的设计，注意保持风格统一</p>
+                </div>
+            </div>
+
+            <!-- 编辑任务标题 -->
+            <div class="px-6 pb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">任务标题</label>
+                <div class="glass-card rounded-2xl p-4">
+                    <input 
+                        type="text" 
+                        value="完成项目设计稿" 
+                        class="w-full bg-transparent text-gray-800 outline-none font-medium"
+                    >
+                </div>
+            </div>
+
+            <!-- 编辑优先级 -->
+            <div class="px-6 pb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">优先级</label>
+                <div class="priority-selector">
+                    <div class="priority-btn priority-urgent selected">
+                        <div class="flex items-center gap-2 mb-1">
+                            <div class="w-3 h-3 bg-white rounded-full"></div>
+                            <span class="text-white font-medium text-sm">紧急</span>
+                        </div>
+                    </div>
+                    <div class="priority-btn priority-important bg-gray-50">
+                        <div class="flex items-center gap-2 mb-1">
+                            <div class="w-3 h-3 bg-orange-400 rounded-full"></div>
+                            <span class="text-gray-700 font-medium text-sm">重要</span>
+                        </div>
+                    </div>
+                    <div class="priority-btn priority-normal bg-gray-50">
+                        <div class="flex items-center gap-2 mb-1">
+                            <div class="w-3 h-3 bg-yellow-400 rounded-full"></div>
+                            <span class="text-gray-700 font-medium text-sm">普通</span>
+                        </div>
+                    </div>
+                    <div class="priority-btn priority-low bg-gray-50">
+                        <div class="flex items-center gap-2 mb-1">
+                            <div class="w-3 h-3 bg-green-400 rounded-full"></div>
+                            <span class="text-gray-700 font-medium text-sm">较低</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 编辑分类 -->
+            <div class="px-6 pb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">分类</label>
+                <div class="glass-card rounded-2xl p-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 bg-blue-100 rounded-xl flex items-center justify-center">
+                                <img src="https://unpkg.com/lucide-static@latest/icons/briefcase.svg" alt="work" class="w-4 h-4 text-blue-600">
+                            </div>
+                            <span class="font-medium text-gray-800">工作</span>
+                        </div>
+                        <img src="https://unpkg.com/lucide-static@latest/icons/chevron-right.svg" alt="arrow" class="w-5 h-5 text-gray-400">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 编辑截止时间 -->
+            <div class="px-6 pb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">截止时间</label>
+                <div class="glass-card rounded-2xl p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="font-medium text-gray-800">2024年12月18日</p>
+                            <p class="text-sm text-gray-500">今天 18:00 前完成</p>
+                        </div>
+                        <img src="https://unpkg.com/lucide-static@latest/icons/calendar.svg" alt="calendar" class="w-5 h-5 text-gray-400">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 编辑备注 -->
+            <div class="px-6 pb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">备注</label>
+                <div class="glass-card rounded-2xl p-4">
+                    <textarea 
+                        class="w-full h-20 bg-transparent text-gray-700 outline-none resize-none text-sm"
+                    >需要包含首页、列表页和详情页的设计，注意保持风格统一。重点关注用户体验和视觉效果。</textarea>
+                </div>
+            </div>
+
+            <!-- 任务状态 -->
+            <div class="px-6 pb-20">
+                <label class="block text-sm font-medium text-gray-700 mb-2">任务状态</label>
+                <div class="flex gap-3">
+                    <button class="flex-1 py-3 bg-gray-100 text-gray-700 rounded-2xl font-medium active:scale-95 transition-transform">
+                        待完成
+                    </button>
+                    <button class="flex-1 py-3 success-gradient text-white rounded-2xl font-medium active:scale-95 transition-transform">
+                        标记完成
+                    </button>
+                </div>
+            </div>
+
+            <!-- 底部按钮组 -->
+            <div class="absolute bottom-6 left-6 right-6 space-y-3">
+                <button class="w-full py-4 todo-gradient text-white font-semibold rounded-2xl active:scale-95 transition-transform">
+                    保存修改
+                </button>
+                <button class="w-full py-4 bg-gray-100 text-gray-700 font-semibold rounded-2xl active:scale-95 transition-transform">
+                    取消
+                </button>
+            </div>
+        </div>
+
+        <!-- 页面4: 完成统计 -->
+        <div class="w-80 h-screen bg-white rounded-3xl shadow-warm overflow-hidden relative">
+            <!-- 头部 -->
+            <div class="flex items-center justify-between p-6 pt-12">
+                <button class="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center">
+                    <img src="https://unpkg.com/lucide-static@latest/icons/arrow-left.svg" alt="back" class="w-5 h-5">
+                </button>
+                <h1 class="text-lg font-semibold text-gray-800">完成统计</h1>
+                <button class="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center">
+                    <img src="https://unpkg.com/lucide-static@latest/icons/download.svg" alt="export" class="w-5 h-5">
+                </button>
+            </div>
+
+            <!-- 时间切换 -->
+            <div class="px-6 pb-6">
+                <div class="glass-card rounded-2xl p-2 flex">
+                    <button class="flex-1 py-2 rounded-xl text-gray-600 font-medium">本周</button>
+                    <button class="flex-1 py-2 rounded-xl bg-gradient-to-r from-primary to-secondary text-white font-medium">本月</button>
+                    <button class="flex-1 py-2 rounded-xl text-gray-600 font-medium">本年</button>
+                </div>
+            </div>
+
+            <!-- 完成概览 -->
+            <div class="px-6 pb-6">
+                <div class="glass-card rounded-2xl p-5">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">12月总览</h3>
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div class="text-center">
+                            <p class="text-3xl font-bold text-success">156</p>
+                            <p class="text-sm text-gray-500">总完成数</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-3xl font-bold text-primary">87%</p>
+                            <p class="text-sm text-gray-500">完成率</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="text-center">
+                            <p class="text-2xl font-bold streak-counter">12天</p>
+                            <p class="text-sm text-gray-500">最长连续</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-2xl font-bold text-primary">5天</p>
+                            <p class="text-sm text-gray-500">当前连续</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 优先级分析 -->
+            <div class="px-6 pb-6">
+                <div class="glass-card rounded-2xl p-5">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">优先级分析</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-4 h-4 bg-red-400 rounded-full"></div>
+                                <span class="text-gray-700">紧急任务</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="w-20 h-2 bg-gray-200 rounded-full">
+                                    <div class="w-11/12 h-2 bg-red-400 rounded-full"></div>
+                                </div>
+                                <span class="text-sm font-medium text-gray-800 w-8">95%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-4 h-4 bg-orange-400 rounded-full"></div>
+                                <span class="text-gray-700">重要任务</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="w-20 h-2 bg-gray-200 rounded-full">
+                                    <div class="w-4/5 h-2 bg-orange-400 rounded-full"></div>
+                                </div>
+                                <span class="text-sm font-medium text-gray-800 w-8">89%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-4 h-4 bg-yellow-400 rounded-full"></div>
+                                <span class="text-gray-700">普通任务</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="w-20 h-2 bg-gray-200 rounded-full">
+                                    <div class="w-3/4 h-2 bg-yellow-400 rounded-full"></div>
+                                </div>
+                                <span class="text-sm font-medium text-gray-800 w-8">78%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-4 h-4 bg-green-400 rounded-full"></div>
+                                <span class="text-gray-700">较低任务</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="w-20 h-2 bg-gray-200 rounded-full">
+                                    <div class="w-1/2 h-2 bg-green-400 rounded-full"></div>
+                                </div>
+                                <span class="text-sm font-medium text-gray-800 w-8">65%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 分类统计 -->
+            <div class="px-6 pb-6">
+                <div class="glass-card rounded-2xl p-5">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">分类完成情况</h3>
+                    <div class="grid grid-cols-3 gap-3">
+                        <div class="text-center">
+                            <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-2">
+                                <img src="https://unpkg.com/lucide-static@latest/icons/briefcase.svg" alt="work" class="w-6 h-6 text-blue-600">
+                            </div>
+                            <p class="text-lg font-bold text-gray-800">52</p>
+                            <p class="text-xs text-gray-500">工作</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="w-12 h-12 bg-pink-100 rounded-xl flex items-center justify-center mx-auto mb-2">
+                                <img src="https://unpkg.com/lucide-static@latest/icons/heart.svg" alt="life" class="w-6 h-6 text-pink-600">
+                            </div>
+                            <p class="text-lg font-bold text-gray-800">34</p>
+                            <p class="text-xs text-gray-500">生活</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mx-auto mb-2">
+                                <img src="https://unpkg.com/lucide-static@latest/icons/book.svg" alt="study" class="w-6 h-6 text-green-600">
+                            </div>
+                            <p class="text-lg font-bold text-gray-800">28</p>
+                            <p class="text-xs text-gray-500">学习</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mx-auto mb-2">
+                                <img src="https://unpkg.com/lucide-static@latest/icons/dumbbell.svg" alt="health" class="w-6 h-6 text-purple-600">
+                            </div>
+                            <p class="text-lg font-bold text-gray-800">21</p>
+                            <p class="text-xs text-gray-500">健康</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center mx-auto mb-2">
+                                <img src="https://unpkg.com/lucide-static@latest/icons/shopping-cart.svg" alt="shopping" class="w-6 h-6 text-yellow-600">
+                            </div>
+                            <p class="text-lg font-bold text-gray-800">15</p>
+                            <p class="text-xs text-gray-500">购物</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center mx-auto mb-2">
+                                <img src="https://unpkg.com/lucide-static@latest/icons/plane.svg" alt="travel" class="w-6 h-6 text-indigo-600">
+                            </div>
+                            <p class="text-lg font-bold text-gray-800">6</p>
+                            <p class="text-xs text-gray-500">旅行</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 完成趋势 -->
+            <div class="px-6 pb-6">
+                <div class="glass-card rounded-2xl p-5">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">最近一周完成趋势</h3>
+                    <div class="h-24 flex items-end justify-around">
+                        <!-- 模拟趋势图 -->
+                        <div class="text-center">
+                            <div class="w-6 h-16 todo-gradient rounded-t-lg mb-1"></div>
+                            <span class="text-xs text-gray-500">12</span>
+                        </div>
+                        <div class="text-center">
+                            <div class="w-6 h-20 todo-gradient rounded-t-lg mb-1"></div>
+                            <span class="text-xs text-gray-500">13</span>
+                        </div>
+                        <div class="text-center">
+                            <div class="w-6 h-12 todo-gradient rounded-t-lg mb-1"></div>
+                            <span class="text-xs text-gray-500">14</span>
+                        </div>
+                        <div class="text-center">
+                            <div class="w-6 h-18 todo-gradient rounded-t-lg mb-1"></div>
+                            <span class="text-xs text-gray-500">15</span>
+                        </div>
+                        <div class="text-center">
+                            <div class="w-6 h-22 todo-gradient rounded-t-lg mb-1"></div>
+                            <span class="text-xs text-gray-500">16</span>
+                        </div>
+                        <div class="text-center">
+                            <div class="w-6 h-14 todo-gradient rounded-t-lg mb-1"></div>
+                            <span class="text-xs text-gray-500">17</span>
+                        </div>
+                        <div class="text-center">
+                            <div class="w-6 h-10 todo-gradient rounded-t-lg mb-1"></div>
+                            <span class="text-xs text-gray-500">18</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 激励卡片 -->
+            <div class="px-6 pb-20">
+                <div class="glass-card rounded-2xl p-5 bg-gradient-to-br from-warm to-white">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center">
+                            <img src="https://unpkg.com/lucide-static@latest/icons/trophy.svg" alt="trophy" class="w-5 h-5 filter invert">
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-800">本月表现</h3>
+                    </div>
+                    <p class="text-sm text-gray-600 leading-relaxed mb-3">
+                        🎉 太棒了！本月你的完成率高达87%，超过了90%的用户。继续保持这个节奏，你正在成为效率达人！
+                    </p>
+                    <div class="flex items-center gap-2">
+                        <span class="px-3 py-1 bg-primary/20 text-primary rounded-full text-xs font-medium">效率达人</span>
+                        <span class="px-3 py-1 bg-success/20 text-success rounded-full text-xs font-medium">连续完成王</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 底部导航 -->
+            <div class="absolute bottom-0 left-0 right-0 bg-white/80 backdrop-blur-lg border-t border-gray-200">
+                <div class="flex justify-around items-center py-3">
+                    <div class="flex flex-col items-center gap-1">
+                        <img src="https://unpkg.com/lucide-static@latest/icons/home.svg" alt="home" class="w-6 h-6 text-gray-400">
+                        <span class="text-xs text-gray-400">首页</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-1">
+                        <img src="https://unpkg.com/lucide-static@latest/icons/wallet.svg" alt="wallet" class="w-6 h-6 text-gray-400">
+                        <span class="text-xs text-gray-400">记账</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-1">
+                        <img src="https://unpkg.com/lucide-static@latest/icons/book-open.svg" alt="diary" class="w-6 h-6 text-gray-400">
+                        <span class="text-xs text-gray-400">日记</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-1">
+                        <div class="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center">
+                            <img src="https://unpkg.com/lucide-static@latest/icons/check-circle.svg" alt="todo" class="w-4 h-4 filter invert">
+                        </div>
+                        <span class="text-xs text-primary font-medium">待办</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    
+</body>
+</html>

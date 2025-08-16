@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生活管理 - 个人设置功能</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#FF8A65',      // 暖橙色
+                        secondary: '#FFB74D',   // 暖黄色
+                        accent: '#FFAB91',      // 桃色
+                        warm: '#FFF3E0',        // 暖白色
+                        warmGray: '#795548',    // 暖灰色
+                        deepWarm: '#E65100',    // 深橙色
+                        success: '#66BB6A',     // 成功绿色
+                        warning: '#FFA726',     // 警告橙色
+                        danger: '#EF5350',      // 危险红色
+                    },
+                    fontFamily: {
+                        sans: ['SF Pro Display', 'PingFang SC', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', 'PingFang SC', system-ui, sans-serif;
+        }
+        
+        .glass-morphism {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        
+        .warm-gradient {
+            background: linear-gradient(135deg, #FFE0B2 0%, #FFCC80 50%, #FFB74D 100%);
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 138, 101, 0.2);
+        }
+        
+        .shadow-warm {
+            box-shadow: 0 8px 32px rgba(255, 138, 101, 0.15);
+        }
+        
+        .settings-gradient {
+            background: linear-gradient(135deg, #FF8A65, #FFB74D);
+        }
+        
+        .profile-header {
+            background: linear-gradient(135deg, #FF8A65, #FFAB91, #FFB74D);
+        }
+        
+        .setting-item {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .setting-item:hover {
+            background: rgba(255, 138, 101, 0.05);
+            transform: translateX(2px);
+        }
+        
+        .setting-item:active {
+            transform: scale(0.98);
+        }
+        
+        .switch {
+            width: 44px;
+            height: 24px;
+            background: #E5E7EB;
+            border-radius: 12px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .switch.active {
+            background: linear-gradient(135deg, #FF8A65, #FFB74D);
+        }
+        
+        .switch::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .switch.active::after {
+            left: 22px;
+        }
+        
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 20px;
+            height: 20px;
+            background: linear-gradient(135deg, #FF8A65, #FFB74D);
+            color: white;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, rgba(255, 138, 101, 0.1), rgba(255, 183, 77, 0.1));
+            border: 1px solid rgba(255, 138, 101, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 138, 101, 0.15);
+        }
+        
+        .achievement-badge {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .achievement-badge::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: conic-gradient(from 0deg, #FF8A65, #FFB74D, #FFAB91, #FF8A65);
+            border-radius: 50%;
+            animation: rotate 3s linear infinite;
+        }
+        
+        .achievement-badge::after {
+            content: '';
+            position: absolute;
+            inset: 3px;
+            background: white;
+            border-radius: 50%;
+        }
+        
+        .achievement-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: #F3F4F6;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #FF8A65, #FFB74D);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        
+        .theme-preview {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .theme-preview.selected {
+            border-color: #FF8A65;
+            transform: scale(1.1);
+        }
+        
+        .theme-preview.warm {
+            background: linear-gradient(135deg, #FFE0B2, #FFCC80);
+        }
+        
+        .theme-preview.cool {
+            background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
+        }
+        
+        .theme-preview.dark {
+            background: linear-gradient(135deg, #424242, #616161);
+        }
+        
+        .theme-preview.nature {
+            background: linear-gradient(135deg, #E8F5E8, #C8E6C9);
+        }
+        
+        .data-card {
+            border-left: 4px solid #FF8A65;
+        }
+        
+        .danger-zone {
+            border: 1px solid #EF5350;
+            background: rgba(239, 83, 80, 0.05);
+        }
+        
+        .floating-save {
+            position: fixed;
+            bottom: 100px;
+            right: 24px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #66BB6A, #81C784);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 25px rgba(102, 187, 106, 0.4);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .floating-save:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 35px rgba(102, 187, 106, 0.5);
+        }
+    </style>
+</head>
+<body class="warm-gradient min-h-screen">
+    
+    <!-- App Container -->
+    <div class="flex justify-center gap-6 p-4 flex-wrap">
+        
+        <!-- 页面1: 个人资料 -->
+        <div class="w-80 h-screen bg-white rounded-3xl shadow-warm overflow-hidden relative">
+            <!-- 头部背景 -->
+            <div class="profile-header p-6 pt-12 pb-8 relative">
+                <div class="flex items-center justify-between mb-6">
+                    <button class="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-lg flex items-center justify-center">
+                        <img src="https://unpkg.com/lucide-static@latest/icons/arrow-left.svg" alt="back" class="w-5 h-5 text-white">
+                    </button>
+                    <h1 class="text-lg font-semibold text-white">个人资料</h1>
+                    <button class="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-lg flex items-center justify-center">
+                        <img src="https://unpkg.com/lucide-static@latest/icons/edit.svg" alt="edit" class="w-5 h-5 text-white">
+                    </button>
+                </div>
+                
+                <!-- 头像和基本信息 -->
+                <div class="text-center">
+                    <div class="relative inline-block mb-4">
+                        <img src="https://images.unsplash.com/photo-1494790108755-2616b612b786?w=200&h=200&fit=crop&crop=face" 
+                             alt="avatar" class="w-24 h-24 rounded-full border-4 border-white/50">
+                        <div class="absolute -bottom-2 -right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center">
+                            <img src="https://unpkg.com/lucide-static@latest/icons/camera.svg" alt="camera" class="w-4 h-4 text-primary">
+                        </div>
+                    </div>
+                    <h2 class="text-2xl font-bold text-white mb-1">李小美</h2>
+                    <p class="text-white/80 text-sm">生活规划师 · 上海</p>
+                </div>
+            </div>
+
+            <!-- 个人统计 -->
+            <div class="px-6 -mt-4 mb-6">
+                <div class="glass-card rounded-2xl p-5">
+                    <div class="grid grid-cols-3 gap-4">
+                        <div class="text-center">
+                            <p class="text-2xl font-bold text-primary">127</p>
+                            <p class="text-sm text-gray-500">记账天数</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-2xl font-bold text-primary">89</p>
+                            <p class="text-sm text-gray-500">日记篇数</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-2xl font-bold text-primary">245</p>
+                            <p class="text-sm text-gray-500">完成任务</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 基本信息编辑 -->
+            <div class="px-6 space-y-4">
+                <!-- 昵称 -->
+                <div class="setting-item glass-card rounded-2xl p-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+                                <img src="https://unpkg.com/lucide-static@latest/icons/user.svg" alt="user" class="w-5 h-5 text-blue-600">
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-800">昵称</p>
+                                <p class="text-sm text-gray-500">李小美</p>
+                            </div>
+                        </div>
+                        <img src="https://unpkg.com/lucide-static@latest/icons/chevron-right.svg" alt="arrow" class="w-5 h-5 text-gray-400">
+                    </div>
+                </div>
+
+                <!-- 个性签名 -->
+                <div class="setting-item glass-card rounded-2xl p-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-pink-100 rounded-xl flex items-center justify-center">
+                                <img src="https://unpkg.com/lucide-static@latest/icons/quote.svg" alt="quote" class="w-5 h-5 text-pink-600">
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-800">个性签名</p>
+                                <p class="text-sm text-gray-500">用心记录生活的每一刻</p>
+                            </div>
+                        </div>
+                        <img src="https://unpkg.com/lucide-static@latest/icons/chevron-right.svg" alt="arrow" class="w-5 h-5 text-gray-400">
+                    </div>
+                </div>
+
+                <!-- 生日 -->
+                <div class="setting-item glass-card rounded-2xl p-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center">
+                                <img src="https://unpkg.com/lucide-static@latest/icons/cake.svg" alt="birthday" class="w-5 h-5 text-purple-600">
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-800">生日</p>
+                                <p class="text-sm text-gray-500">1995年3月15日</p>
+                            </div>
+                        </div>
+                        <img src="https://unpkg.com/lucide-static@latest/icons/chevron-right.svg" alt="arrow" class="w-5 h-5 text-gray-400">
+                    </div>
+                </div>
+
+                <!-- 城市 -->
+                <div class="setting-item glass-card rounded-2xl p-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
+                                <img src="https://unpkg.com/lucide-static@latest/icons/map-pin.svg" alt="location" class="w-5 h-5 text-green-600">
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-800">所在城市</p>
+                                <p class="text-sm text-gray-500">上海市</p>
+                            </div>
+                        </div>
+                        <img src="https://unpkg.com/lucide-static@latest/icons/chevron-right.svg" alt="arrow" class="w-5 h-5 text-gray-400">
+                    </div>
+                </div>
+
+                <!-- 职业 -->
+                <div class="setting-item glass-card rounded-2xl p-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center">
+                                <img src="https://unpkg.com/lucide-static@latest/icons/briefcase.svg" alt="work" class="w-5 h-5 text-orange-600">
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-800">职业</p>
+                                <p class="text-sm text-gray-500">产品设计师</p>
+                            </div>
+                        </div>
+                        <img src="https://unpkg.com/lucide-static@latest/icons/chevron-right.svg" alt="arrow" class="w-5 h-5 text-gray-400">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 成就徽章 -->
+            <div class="px-6 py-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">我的成就</h3>
+                <div class="flex justify-around">
+                    <div class="text-center">
+                        <div class="achievement-badge mx-auto mb-2">
+                            <div class="achievement-content">🏆</div>
+                        </div>
+                        <p class="text-xs text-gray-600">记账达人</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="achievement-badge mx-auto mb-2">
+                            <div class="achievement-content">📝</div>
+                        </div>
+                        <p class="text-xs text-gray-600">日记之星</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="achievement-badge mx-auto mb-2">
+                            <div class="achievement-content">⚡</div>
+                        </div>
+                        <p class="text-xs text-gray-600">效率专家</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="achievement-badge mx-auto mb-2">
+                            <div class="achievement-content">🎯</div>
+                        </div>
+                        <p class="text-xs text-gray-600">目标王者</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 底部导航 -->
+            <div class="absolute bottom-0 left-0 right-0 bg-white/80 backdrop-blur-lg border-t border-gray-200">
+                <div class="flex justify-around items-center py-3">
+                    <div class="flex flex-col items-center gap-1">
+                        <img src="https://unpkg.com/lucide-static@latest/icons/home.svg" alt="home" class="w-6 h-6 text-gray-400">
+                        <span class="text-xs text-gray-400">首页</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-1">
+                        <img src="https://unpkg.com/lucide-static@latest/icons/wallet.svg" alt="wallet" class="w-6 h-6 text-gray-400">
+                        <span class="text-xs text-gray-400">记账</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-1">
+                        <img src="https://unpkg.com/lucide-static@latest/icons/book-open.svg" alt="diary" class="w-6 h-6 text-gray-400">
+                        <span class="text-xs text-gray-400">日记</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-1">
+                        <div class="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center">
+                            <img src="https://unpkg.com/lucide-static@latest/icons/settings.svg" alt="settings" class="w-4 h-4 filter invert">
+                        </div>
+                        <span class="text-xs text-primary font-medium">设置</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 页面2: 应用设置 -->
+        <div class="w-80 h-screen bg-white rounded-3xl shadow-warm overflow-hidden relative">
+            <!-- 头部 -->
+            <div class="flex items-center justify-between p-6 pt-12">
+                <button class="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center">
+                    <img src="https://unpkg.com/lucide-static@latest/icons/arrow-left.svg" alt="back" class="w-5 h-5">
+                </button>
+                <h1 class="text-lg font-semibold text-gray-800">应用设置</h1>
+                <div class="w-10 h-10"></div>
+            </div>
+
+            <!-- 主题设置 -->
+            <div class="px-6 pb-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">主题外观</h3>
+                <div class="glass-card rounded-2xl p-5">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="font-medium text-gray-800">选择主题</span>
+                    </div>
+                    <div class="flex justify-around">
+                        <div class="text-center">
+                            <div class="theme-preview warm selected mb-2"></div>
+                            <span class="text-xs text-gray-600">暖色调</span>
+                        </div>
+                        <div class="text-center">
+                            <div class="theme-preview cool mb-2"></div>
+                            <span class="text-xs text-gray-600">清新蓝</span>
+                        </div>
+                        <div class="text-center">
+                            <div class="theme-preview nature mb-2"></div>
+                            <span class="text-xs text-gray-600">自然绿</span>
+                        </div>
+                        <div class="text-center">
+                            <div class="theme-preview dark mb-2"></div>
+                            <span class="text-xs text-gray-600">深色模式</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 通知设置 -->
+            <div class="px-6 pb-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">通知提醒</h3>
+                <div class="glass-card rounded-2xl p-4 space-y-4">
+                    <!-- 记账提醒 -->
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
+                                <img src="https://unpkg.com/lucide-static@latest/icons/wallet.svg" alt="wallet" class="w-4 h-4 text-orange-600">
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-800">记账提醒</p>
+                                <p class="text-sm text-gray-500">每天 21:00</p>
+                            </div>
+                        </div>
+                        <div class="switch active"></div>
+                    </div>
+
+                    <!-- 日记提醒 -->
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 bg-pink-100 rounded-lg flex items-center justify-center">
+                                <img src="https://unpkg.com/lucide-static@latest/icons/book-open.svg" alt="diary" class="w-4 h-4 text-pink-600">
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-800">日记提醒</p>
+                                <p class="text-sm text-gray-500">每天 22:00</p>
+                            </div>
+                        </div>
+                        <div class="switch active"></div>
+                    </div>
+
+                    <!-- 待办提醒 -->
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <img src="https://unpkg.com/lucide-static@latest/icons/check-circle.svg" alt="todo" class="w-4 h-4 text-blue-600">
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-800">待办提醒</p>
+                                <p class="text-sm text-gray-500">截止前 1 小时</p>
+                            </div>
+                        </div>
+                        <div class="switch active"></div>
+                    </div>
+
+                    <!-- 周报提醒 -->
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                                <img src="https://unpkg.com/lucide-static@latest/icons/bar-chart.svg" alt="report" class="w-4 h-4 text-green-600">
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-800">周报提醒</p>
+                                <p class="text-sm text-gray-500">每周日 20:00</p>
+                            </div>
+                        </div>
+                        <div class="switch"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 隐私设置 -->
+            <div class="px-6 pb-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">隐私安全</h3>
+                <div class="glass-card rounded-2xl p-4 space-y-4">
+                    <!-- 指纹解锁 -->
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                                <img src="https://unpkg.com/lucide-static@latest/icons/fingerprint.svg" alt="fingerprint" class="w-4 h-4 text-purple-600">
+                            </div>
+                            <span class="font-medium text-gray-800">指纹解锁</span>
+                        </div>
+                        <div class="switch active"></div>
+                    </div>
+
+                    <!-- 数据加密 -->
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center">
+                                <img src="https://unpkg.com/lucide-static@latest/icons/shield.svg" alt="shield" class="w-4 h-4 text-indigo-600">
+                            </div>
+                            <span class="font-medium text-gray-800">本地数据加密</span>
+                        </div>
+                        <div class="switch active"></div>
+                    </div>
+
+                    <!-- 自动锁定 -->
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
+                                <img src="https://unpkg.com/lucide-static@latest/icons/lock.svg" alt="lock" class="w-4 h-4 text-red-600">
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-800">自动锁定</p>
+                                <p class="text-sm text-gray-500">5分钟后</p>
+                            </div>
+                        </div>
+                        <img src="https://unpkg.com/lucide-static@latest/icons/chevron-right.svg" alt="arrow" class="w-5 h-5 text-gray-400">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 其他设置 -->
+            <div class="px-6 pb-20">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">其他</h3>
+                <div class="glass-card rounded-2xl p-4 space-y-4">
+                    <!-- 语言设置 -->
+                    <div class="setting-item flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
+                                <img src="https://unpkg.com/lucide-static@latest/icons/globe.svg" alt="language" class="w-4 h-4 text-yellow-600">
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-800">语言</p>
+                                <p class="text-sm text-gray-500">简体中文</p>
+                            </div>
+                        </div>
+                        <img src="https://unpkg.com/lucide-static@latest/icons/chevron-right.svg" alt="arrow" class="w-5 h-5 text-gray-400">
+                    </div>
+
+                    <!-- 字体大小 -->
+                    <div class="setting-item flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 bg-teal-100 rounded-lg flex items-center justify-center">
+                                <img src="https://unpkg.com/lucide-static@latest/icons/type.svg" alt="font" class="w-4 h-4 text-teal-600">
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-800">字体大小</p>
+                                <p class="text-sm text-gray-500">标准</p>
+                            </div>
+                        </div>
+                        <img src="https://unpkg.com/lucide-static@latest/icons/chevron-right.svg" alt="arrow" class="w-5 h-5 text-gray-400">
+                    </div>
+
+                    <!-- 音效振动 -->
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
+                                <img src="https://unpkg.com/lucide-static@latest/icons/volume-2.svg" alt="sound" class="w-4 h-4 text-gray-600">
+                            </div>
+                            <span class="font-medium text-gray-800">音效振动</span>
+                        </div>
+                        <div class="switch active"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 底部导航 -->
+            <div class="absolute bottom-0 left-0 right-0 bg-white/80 backdrop-blur-lg border-t border-gray-200">
+                <div class="flex justify-around items-center py-3">
+                    <div class="flex flex-col items-center gap-1">
+                        <img src="https://unpkg.com/lucide-static@latest/icons/home.svg" alt="home" class="w-6 h-6 text-gray-400">
+                        <span class="text-xs text-gray-400">首页</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-1">
+                        <img src="https://unpkg.com/lucide-static@latest/icons/wallet.svg" alt="wallet" class="w-6 h-6 text-gray-400">
+                        <span class="text-xs text-gray-400">记账</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-1">
+                        <img src="https://unpkg.com/lucide-static@latest/icons/book-open.svg" alt="diary" class="w-6 h-6 text-gray-400">
+                        <span class="text-xs text-gray-400">日记</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-1">
+                        <div class="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center">
+                            <img src="https://unpkg.com/lucide-static@latest/icons/settings.svg" alt="settings" class="w-4 h-4 filter invert">
+                        </div>
+                        <span class="text-xs text-primary font-medium">设置</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 页面3: 数据管理 -->
+        <div class="w-80 h-screen bg-white rounded-3xl shadow-warm overflow-hidden relative">
+            <!-- 头部 -->
+            <div class="flex items-center justify-between p-6 pt-12">
+                <button class="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center">
+                    <img src="https://unpkg.com/lucide-static@latest/icons/arrow-left.svg" alt="back" class="w-5 h-5">
+                </button>
+                <h1 class="text-lg font-semibold text-gray-800">数据管理</h1>
+                <div class="w-10 h-10"></div>
+            </div>
+
+            <!-- 数据概览 -->
+            <div class="px-6 pb-6">
+                <div class="glass-card rounded-2xl p-5">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">数据概览</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="stat-card rounded-xl p-4">
+                            <div class="flex items-center gap-3 mb-2">
+                                <div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
+                                    <img src="https://unpkg.com/lucide-static@latest/icons/wallet.svg" alt="wallet" class="w-4 h-4 text-orange-600">
+                                </div>
+                                <span class="font-medium text-gray-800">记账</span>
+                            </div>
+                            <p class="text-2xl font-bold text-primary mb-1">1,247</p>
+                            <p class="text-sm text-gray-500">条记录</p>
+                        </div>
+                        <div class="stat-card rounded-xl p-4">
+                            <div class="flex items-center gap-3 mb-2">
+                                <div class="w-8 h-8 bg-pink-100 rounded-lg flex items-center justify-center">
+                                    <img src="https://unpkg.com/lucide-static@latest/icons/book-open.svg" alt="diary" class="w-4 h-4 text-pink-600">
+                                </div>
+                                <span class="font-medium text-gray-800">日记</span>
+                            </div>
+                            <p class="text-2xl font-bold text-primary mb-1">89</p>
+                            <p class="text-sm text-gray-500">篇文章</p>
+                        </div>
+                        <div class="stat-card rounded-xl p-4">
+                            <div class="flex items-center gap-3 mb-2">
+                                <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                                    <img src="https://unpkg.com/lucide-static@latest/icons/check-circle.svg" alt="todo" class="w-4 h-4 text-blue-600">
+                                </div>
+                                <span class="font-medium text-gray-800">待办</span>
+                            </div>
+                            <p class="text-2xl font-bold text-primary mb-1">456</p>
+                            <p class="text-sm text-gray-500">个任务</p>
+                        </div>
+                        <div class="stat-card rounded-xl p-4">
+                            <div class="flex items-center gap-3 mb-2">
+                                <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                                    <img src="https://unpkg.com/lucide-static@latest/icons/image.svg" alt="photo" class="w-4 h-4 text-green-600">
+                                </div>
+                                <span class="font-medium text-gray-800">照片</span>
+                            </div>
+                            <p class="text-2xl font-bold text-primary mb-1">234</p>
+                            <p class="text-sm text-gray-500">张图片</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 存储使用情况 -->
+            <div class="px-6 pb-6">
+                <div class="glass-card rounded-2xl p-5">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">存储使用情况</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-sm mb-2">
+                                <span class="text-gray-600">总存储空间</span>
+                                <span class="font-medium">2.4 GB / 5 GB</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 48%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between text-sm">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-3 h-3 bg-orange-400 rounded-full"></div>
+                                    <span class="text-gray-600">文本数据</span>
+                                </div>
+                                <span class="font-medium">0.8 GB</span>
+                            </div>
+                            <div class="flex items-center justify-between text-sm">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-3 h-3 bg-pink-400 rounded-full"></div>
+                                    <span class="text-gray-600">图片文件</span>
+                                </div>
+                                <span class="font-medium">1.4 GB</span>
+                            </div>
+                            <div class="flex items-center justify-between text-sm">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-3 h-3 bg-blue-400 rounded-full"></div>
+                                    <span class="text-gray-600">应用数据</span>
+                                </div>
+                                <span class="font-medium">0.2 GB</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 备份同步 -->
+            <div class="px-6 pb-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">备份同步</h3>
+                <div class="glass-card rounded-2xl p-4 space-y-4">
+                    <!-- 自动备份 -->
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                                <img src="https://unpkg.com/lucide-static@latest/icons/cloud.svg" alt="cloud" class="w-4 h-4 text-green-600">
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-800">自动备份</p>
+                                <p class="text-sm text-gray-500">每日 02:00</p>
+                            </div>
+                        </div>
+                        <div class="switch active"></div>
+                    </div>
+
+                    <!-- 上次备份 -->
+                    <div class="data-card glass-card rounded-xl p-3">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="font-medium text-gray-800">上次备份</p>
+                                <p class="text-sm text-gray-500">今天 02:00 · 成功</p>
+                            </div>
+                            <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
+                                <img src="https://unpkg.com/lucide-static@latest/icons/check.svg" alt="success" class="w-3 h-3 text-green-600">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 手动备份 -->
+                    <button class="w-full setting-item glass-card rounded-xl p-3">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                                    <img src="https://unpkg.com/lucide-static@latest/icons/upload.svg" alt="backup" class="w-4 h-4 text-blue-600">
+                                </div>
+                                <span class="font-medium text-gray-800">立即备份</span>
+                            </div>
+                            <img src="https://unpkg.com/lucide-static@latest/icons/chevron-right.svg" alt="arrow" class="w-5 h-5 text-gray-400">
+                        </div>
+                    </button>
+
+                    <!-- 恢复数据 -->
+                    <button class="w-full setting-item glass-card rounded-xl p-3">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                                    <img src="https://unpkg.com/lucide-static@latest/icons/download.svg" alt="restore" class="w-4 h-4 text-purple-600">
+                                </div>
+                                <span class="font-medium text-gray-800">恢复数据</span>
+                            </div>
+                            <img src="https://unpkg.com/lucide-static@latest/icons/chevron-right.svg" alt="arrow" class="w-5 h-5 text-gray-400">
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 导出数据 -->
+            <div class="px-6 pb-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">导出数据</h3>
+                <div class="glass-card rounded-2xl p-4 space-y-3">
+                    <button class="w-full setting-item flex items-center justify-between p-3 rounded-xl">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
+                                <img src="https://unpkg.com/lucide-static@latest/icons/file-text.svg" alt="export" class="w-4 h-4 text-orange-600">
+                            </div>
+                            <span class="font-medium text-gray-800">导出 PDF 报告</span>
+                        </div>
+                        <img src="https://unpkg.com/lucide-static@latest/icons/chevron-right.svg" alt="arrow" class="w-5 h-5 text-gray-400">
+                    </button>
+                    <button class="w-full setting-item flex items-center justify-between p-3 rounded-xl">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                                <img src="https://unpkg.com/lucide-static@latest/icons/table.svg" alt="excel" class="w-4 h-4 text-green-600">
+                            </div>
+                            <span class="font-medium text-gray-800">导出 Excel 表格</span>
+                        </div>
+                        <img src="https://unpkg.com/lucide-static@latest/icons/chevron-right.svg" alt="arrow" class="w-5 h-5 text-gray-400">
+                    </button>
+                </div>
+            </div>
+
+            <!-- 危险操作 -->
+            <div class="px-6 pb-20">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">危险操作</h3>
+                <div class="danger-zone rounded-2xl p-4">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
+                            <img src="https://unpkg.com/lucide-static@latest/icons/trash-2.svg" alt="delete" class="w-4 h-4 text-red-600">
+                        </div>
+                        <span class="font-medium text-red-600">清空所有数据</span>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-4">此操作将永久删除所有数据，无法恢复。请谨慎操作。</p>
+                    <button class="w-full py-3 bg-red-500 text-white font-medium rounded-xl active:scale-95 transition-transform">
+                        确认清空
+                    </button>
+                </div>
+            </div>
+
+            <!-- 底部导航 -->
+            <div class="absolute bottom-0 left-0 right-0 bg-white/80 backdrop-blur-lg border-t border-gray-200">
+                <div class="flex justify-around items-center py-3">
+                    <div class="flex flex-col items-center gap-1">
+                        <img src="https://unpkg.com/lucide-static@latest/icons/home.svg" alt="home" class="w-6 h-6 text-gray-400">
+                        <span class="text-xs text-gray-400">首页</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-1">
+                        <img src="https://unpkg.com/lucide-static@latest/icons/wallet.svg" alt="wallet" class="w-6 h-6 text-gray-400">
+                        <span class="text-xs text-gray-400">记账</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-1">
+                        <img src="https://unpkg.com/lucide-static@latest/icons/book-open.svg" alt="diary" class="w-6 h-6 text-gray-400">
+                        <span class="text-xs text-gray-400">日记</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-1">
+                        <div class="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center">
+                            <img src="https://unpkg.com/lucide-static@latest/icons/settings.svg" alt="settings" class="w-4 h-4 filter invert">
+                        </div>
+                        <span class="text-xs text-primary font-medium">设置</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 页面4: 关于我们 -->
+        <div class="w-80 h-screen bg-white rounded-3xl shadow-warm overflow-hidden relative">
+            <!-- 头部 -->
+            <div class="flex items-center justify-between p-6 pt-12">
+                <button class="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center">
+                    <img src="https://unpkg.com/lucide-static@latest/icons/arrow-left.svg" alt="back" class="w-5 h-5">
+                </button>
+                <h1 class="text-lg font-semibold text-gray-800">关于我们</h1>
+                <div class="w-10 h-10"></div>
+            </div>
+
+            <!-- 应用信息 -->
+            <div class="px-6 pb-6">
+                <div class="glass-card rounded-2xl p-6 text-center">
+                    <div class="w-20 h-20 settings-gradient rounded-3xl flex items-center justify-center mx-auto mb-4">
+                        <img src="https://unpkg.com/lucide-static@latest/icons/heart.svg" alt="logo" class="w-10 h-10 filter invert">
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">生活管理</h2>
+                    <p class="text-gray-500 mb-4">记录美好，规划未来</p>
+                    <div class="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 text-primary rounded-full text-sm">
+                        <span>版本 1.2.0</span>
+                        <div class="badge">新</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 功能介绍 -->
+            <div class="px-6 pb-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">核心功能</h3>
+                <div class="space-y-3">
+                    <div class="glass-card rounded-xl p-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center">
+                                <img src="https://unpkg.com/lucide-static@latest/icons/wallet.svg" alt="wallet" class="w-5 h-5 text-orange-600">
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-800">智能记账</p>
+                                <p class="text-sm text-gray-500">轻松管理个人财务</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="glass-card rounded-xl p-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-pink-100 rounded-xl flex items-center justify-center">
+                                <img src="https://unpkg.com/lucide-static@latest/icons/book-open.svg" alt="diary" class="w-5 h-5 text-pink-600">
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-800">心情日记</p>
+                                <p class="text-sm text-gray-500">记录生活点点滴滴</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="glass-card rounded-xl p-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+                                <img src="https://unpkg.com/lucide-static@latest/icons/check-circle.svg" alt="todo" class="w-5 h-5 text-blue-600">
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-800">待办清单</p>
+                                <p class="text-sm text-gray-500">高效任务管理工具</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 团队信息 -->
+            <div class="px-6 pb-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">开发团队</h3>
+                <div class="glass-card rounded-2xl p-5">
+                    <div class="text-center mb-4">
+                        <div class="w-16 h-16 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center mx-auto mb-3">
+                            <img src="https://unpkg.com/lucide-static@latest/icons/users.svg" alt="team" class="w-8 h-8 filter invert">
+                        </div>
+                        <h4 class="font-semibold text-gray-800">生活科技团队</h4>
+                        <p class="text-sm text-gray-500">专注于生活效率应用开发</p>
+                    </div>
+                    <div class="space-y-2 text-sm text-gray-600">
+                        <p>🎯 致力于让生活更有序</p>
+                        <p>💡 用科技提升生活品质</p>
+                        <p>❤️ 用心打造每一个功能</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 联系方式 -->
+            <div class="px-6 pb-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">联系我们</h3>
+                <div class="glass-card rounded-2xl p-4 space-y-3">
+                    <button class="w-full setting-item flex items-center justify-between p-3 rounded-xl">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <img src="https://unpkg.com/lucide-static@latest/icons/mail.svg" alt="email" class="w-4 h-4 text-blue-600">
+                            </div>
+                            <span class="font-medium text-gray-800">邮箱反馈</span>
+                        </div>
+                        <img src="https://unpkg.com/lucide-static@latest/icons/chevron-right.svg" alt="arrow" class="w-5 h-5 text-gray-400">
+                    </button>
+                    <button class="w-full setting-item flex items-center justify-between p-3 rounded-xl">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                                <img src="https://unpkg.com/lucide-static@latest/icons/message-circle.svg" alt="wechat" class="w-4 h-4 text-green-600">
+                            </div>
+                            <span class="font-medium text-gray-800">微信客服</span>
+                        </div>
+                        <img src="https://unpkg.com/lucide-static@latest/icons/chevron-right.svg" alt="arrow" class="w-5 h-5 text-gray-400">
+                    </button>
+                    <button class="w-full setting-item flex items-center justify-between p-3 rounded-xl">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                                <img src="https://unpkg.com/lucide-static@latest/icons/star.svg" alt="rate" class="w-4 h-4 text-purple-600">
+                            </div>
+                            <span class="font-medium text-gray-800">应用评分</span>
+                        </div>
+                        <img src="https://unpkg.com/lucide-static@latest/icons/chevron-right.svg" alt="arrow" class="w-5 h-5 text-gray-400">
+                    </button>
+                </div>
+            </div>
+
+            <!-- 法律信息 -->
+            <div class="px-6 pb-20">
+                <div class="glass-card rounded-2xl p-4 space-y-3">
+                    <button class="w-full setting-item flex items-center justify-between p-3 rounded-xl">
+                        <span class="font-medium text-gray-800">用户协议</span>
+                        <img src="https://unpkg.com/lucide-static@latest/icons/chevron-right.svg" alt="arrow" class="w-5 h-5 text-gray-400">
+                    </button>
+                    <button class="w-full setting-item flex items-center justify-between p-3 rounded-xl">
+                        <span class="font-medium text-gray-800">隐私政策</span>
+                        <img src="https://unpkg.com/lucide-static@latest/icons/chevron-right.svg" alt="arrow" class="w-5 h-5 text-gray-400">
+                    </button>
+                    <button class="w-full setting-item flex items-center justify-between p-3 rounded-xl">
+                        <span class="font-medium text-gray-800">开源许可</span>
+                        <img src="https://unpkg.com/lucide-static@latest/icons/chevron-right.svg" alt="arrow" class="w-5 h-5 text-gray-400">
+                    </button>
+                </div>
+                
+                <div class="text-center mt-6">
+                    <p class="text-sm text-gray-400">© 2024 生活科技团队</p>
+                    <p class="text-xs text-gray-400 mt-1">用心记录，智慧生活</p>
+                </div>
+            </div>
+
+            <!-- 底部导航 -->
+            <div class="absolute bottom-0 left-0 right-0 bg-white/80 backdrop-blur-lg border-t border-gray-200">
+                <div class="flex justify-around items-center py-3">
+                    <div class="flex flex-col items-center gap-1">
+                        <img src="https://unpkg.com/lucide-static@latest/icons/home.svg" alt="home" class="w-6 h-6 text-gray-400">
+                        <span class="text-xs text-gray-400">首页</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-1">
+                        <img src="https://unpkg.com/lucide-static@latest/icons/wallet.svg" alt="wallet" class="w-6 h-6 text-gray-400">
+                        <span class="text-xs text-gray-400">记账</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-1">
+                        <img src="https://unpkg.com/lucide-static@latest/icons/book-open.svg" alt="diary" class="w-6 h-6 text-gray-400">
+                        <span class="text-xs text-gray-400">日记</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-1">
+                        <div class="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center">
+                            <img src="https://unpkg.com/lucide-static@latest/icons/settings.svg" alt="settings" class="w-4 h-4 filter invert">
+                        </div>
+                        <span class="text-xs text-primary font-medium">设置</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    
+</body>
+</html>
