@@ -14,6 +14,7 @@ export class Transaction {
     this.categoryId = data.categoryId || ''
     this.categoryName = data.categoryName || ''
     this.categoryIcon = data.categoryIcon || ''
+    this.categoryColor = data.categoryColor || '#FF8A65' // 添加分类颜色
     this.note = data.note || ''
     this.date = data.date || new Date().toISOString()
     this.accountId = data.accountId || 'default'
@@ -117,6 +118,7 @@ export class Category {
     this.isCustom = data.isCustom || false
     this.isDeleted = data.isDeleted || false
     this.createdAt = data.createdAt || new Date().toISOString()
+    this.updatedAt = data.updatedAt || new Date().toISOString()
   }
 
   generateId() {

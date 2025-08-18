@@ -106,7 +106,7 @@
 		</view>
 
 		<!-- 趋势图表 -->
-		<view class="trend-section">
+<!-- 		<view class="trend-section">
 			<view class="trend-card">
 				<text class="trend-title">支出趋势</text>
 				<view class="trend-chart">
@@ -122,7 +122,7 @@
 					</view>
 				</view>
 			</view>
-		</view>
+		</view> -->
 
 		<!-- 底部导航 -->
 		<view class="bottom-nav">
@@ -326,9 +326,9 @@ export default {
 				
 				// 处理数据并生成分类统计
 				this.statsData = {
-					week: this.processStatisticsData(weekStats),
-					month: this.processStatisticsData(monthStats),
-					year: this.processStatisticsData(yearStats)
+					week: await this.processStatisticsData(weekStats),
+					month: await this.processStatisticsData(monthStats),
+					year: await this.processStatisticsData(yearStats)
 				}
 				
 				// 生成趋势数据
@@ -344,11 +344,18 @@ export default {
 		/**
 		 * 处理统计数据，生成分类信息
 		 */
-		processStatisticsData(statistics) {
+		async processStatisticsData(statistics) {
 			// 只处理支出分类（图表主要显示支出分布）
 			const expenseCategories = statistics.categoryStats
 				.filter(cat => cat.type === 'expense')
 				.sort((a, b) => b.amount - a.amount) // 按金额降序排列
+			
+			// 获取所有分类数据以获取正确的颜色
+			const allCategories = await DataManager.getCategories()
+			const categoryColorMap = {}
+			allCategories.forEach(cat => {
+				categoryColorMap[cat.id] = cat.color
+			})
 			
 			// 计算百分比
 			const totalExpense = statistics.totalExpense
@@ -357,7 +364,7 @@ export default {
 				name: cat.categoryName,
 				amount: cat.amount,
 				percent: totalExpense > 0 ? Math.round((cat.amount / totalExpense) * 100) : 0,
-				color: this.getCategoryColor(cat.categoryName)
+				color: cat.categoryColor || categoryColorMap[cat.categoryId] || this.getCategoryColor(cat.categoryName) // 优先使用交易记录中的颜色
 			}))
 			
 			return {

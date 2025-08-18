@@ -48,7 +48,13 @@
 
 		<!-- 分类选择 -->
 		<view class="category-section">
-			<text class="section-title">选择分类</text>
+			<view class="category-header">
+				<text class="section-title">选择分类</text>
+				<view class="category-manage-btn" @tap="showCategoryManager">
+					<text class="manage-icon">⚙️</text>
+					<text class="manage-text">管理</text>
+				</view>
+			</view>
 			<view class="category-grid">
 				<view class="category-item" 
 					v-for="category in currentCategories" 
@@ -59,6 +65,13 @@
 						<text class="category-emoji">{{ category.icon }}</text>
 					</view>
 					<text class="category-name">{{ category.name }}</text>
+				</view>
+				<!-- 添加新分类按钮 -->
+				<view class="category-item add-category-item" @tap="showAddCategoryModal">
+					<view class="category-icon add-icon">
+						<text class="category-emoji">➕</text>
+					</view>
+					<text class="category-name">添加分类</text>
 				</view>
 			</view>
 		</view>
@@ -144,6 +157,95 @@
 				</view>
 			</view>
 		</view>
+
+		<!-- 分类管理弹窗 -->
+		<view class="modal-overlay" v-if="showCategoryManagerModal" @tap="hideCategoryManager">
+			<view class="category-manager-modal" @tap.stop>
+				<view class="modal-header">
+					<text class="modal-title">分类管理</text>
+					<view class="modal-close" @tap="hideCategoryManager">✕</view>
+				</view>
+				<view class="category-manager-content">
+					<view class="category-manager-list">
+						<view class="category-manager-item"
+							v-for="category in currentCategories"
+							:key="category.id">
+							<view class="category-info">
+								<view class="category-icon" :style="{ backgroundColor: category.color }">
+									<text class="category-emoji">{{ category.icon }}</text>
+								</view>
+								<text class="category-name">{{ category.name }}</text>
+							</view>
+							<view class="category-actions">
+								<view class="action-btn edit-btn" @tap="editCategory(category)">
+									<text class="action-text">编辑</text>
+								</view>
+								<view class="action-btn delete-btn" @tap="deleteCategory(category)" v-if="category.isCustom">
+									<text class="action-text">删除</text>
+								</view>
+							</view>
+						</view>
+					</view>
+				</view>
+			</view>
+		</view>
+
+		<!-- 添加/编辑分类弹窗 -->
+		<view class="modal-overlay" v-if="showCategoryEditModal" @tap="hideCategoryEditModal">
+			<view class="category-edit-modal" @tap.stop>
+				<view class="modal-header">
+					<text class="modal-title">{{ editingCategory ? '编辑分类' : '添加分类' }}</text>
+					<view class="modal-close" @tap="hideCategoryEditModal">✕</view>
+				</view>
+				<view class="category-edit-content">
+					<!-- 分类名称 -->
+					<view class="form-group">
+						<text class="form-label">分类名称</text>
+						<input class="form-input" 
+							v-model="categoryForm.name" 
+							placeholder="请输入分类名称" />
+					</view>
+					
+					<!-- 图标选择 -->
+					<view class="form-group">
+						<text class="form-label">选择图标</text>
+						<view class="icon-grid">
+							<view class="icon-option"
+								v-for="icon in availableIcons"
+								:key="icon"
+								:class="{ selected: categoryForm.icon === icon }"
+								@tap="selectIcon(icon)">
+								<text class="icon-emoji">{{ icon }}</text>
+							</view>
+						</view>
+					</view>
+					
+					<!-- 颜色选择 -->
+					<view class="form-group">
+						<text class="form-label">选择颜色</text>
+						<view class="color-grid">
+							<view class="color-option"
+								v-for="color in availableColors"
+								:key="color"
+								:class="{ selected: categoryForm.color === color }"
+								:style="{ backgroundColor: color }"
+								@tap="selectColor(color)">
+								<text class="color-check" v-if="categoryForm.color === color">✓</text>
+							</view>
+						</view>
+					</view>
+					
+					<!-- 操作按钮 -->
+					<view class="form-actions">
+						<button class="form-btn cancel-btn" @tap="hideCategoryEditModal">取消</button>
+						<button class="form-btn save-btn" @tap="saveCategoryForm" 
+							:class="{ disabled: !categoryForm.name.trim() }">
+							{{ editingCategory ? '更新' : '添加' }}
+						</button>
+					</view>
+				</view>
+			</view>
+		</view>
 	</view>
 </template>
 
@@ -169,7 +271,33 @@ export default {
 			// 界面控制
 			showDateModal: false,
 			showAccountModal: false,
-			amountFocused: false
+			amountFocused: false,
+			
+			// 分类管理相关
+			showCategoryManagerModal: false,
+			showCategoryEditModal: false,
+			editingCategory: null, // 正在编辑的分类
+			categoryForm: {
+				name: '',
+				icon: '📝',
+				color: '#FF8A65'
+			},
+			
+			// 可选的图标和颜色
+			availableIcons: [
+				'🍽️', '🚗', '🛍️', '🎮', '💊', '📚', '🏠', '💡', '📝',
+				'💰', '💎', '📈', '⏰', '🎁', '➕', '🎵', '🏃‍♂️', '✈️',
+				'📱', '💻', '👕', '🧸', '🐱', '🌟', '🎨', '🔧', '📖',
+				'🍕', '☕', '🎂', '🍎', '🚌', '🚕', '⛽', '🏥', '💄'
+			],
+			availableColors: [
+				'#FF8A65', '#F06292', '#BA68C8', '#9C27B0', '#7986CB',
+				'#3F51B5', '#42A5F5', '#29B6F6', '#26C6DA', '#26A69A',
+				'#66BB6A', '#9CCC65', '#D4E157', '#FFEE58', '#FFCA28',
+				'#FFA726', '#FF7043', '#8D6E63', '#A1887F', '#90A4AE',
+				'#78909C', '#607D8B', '#546E7A', '#455A64', '#37474F',
+				'#EF5350', '#E57373', '#81C784', '#64B5F6', '#FFB74D'
+			]
 		}
 	},
 	computed: {
@@ -381,6 +509,7 @@ export default {
 					categoryId: this.selectedCategory.id,
 					categoryName: this.selectedCategory.name,
 					categoryIcon: this.selectedCategory.icon,
+					categoryColor: this.selectedCategory.color, // 添加分类颜色
 					note: this.note.trim(),
 					date: this.selectedDate.toISOString(),
 					accountId: this.selectedAccount.id,
@@ -452,6 +581,180 @@ export default {
 				duration: 800,
 				mask: false
 			})
+		},
+		
+		// ==================== 分类管理相关方法 ====================
+		
+		/**
+		 * 显示分类管理弹窗
+		 */
+		showCategoryManager() {
+			this.showCategoryManagerModal = true
+		},
+		
+		/**
+		 * 隐藏分类管理弹窗
+		 */
+		hideCategoryManager() {
+			this.showCategoryManagerModal = false
+		},
+		
+		/**
+		 * 显示添加分类弹窗
+		 */
+		showAddCategoryModal() {
+			this.editingCategory = null
+			this.categoryForm = {
+				name: '',
+				icon: '📝',
+				color: '#FF8A65'
+			}
+			this.showCategoryEditModal = true
+		},
+		
+		/**
+		 * 编辑分类
+		 */
+		editCategory(category) {
+			this.editingCategory = category
+			this.categoryForm = {
+				name: category.name,
+				icon: category.icon,
+				color: category.color
+			}
+			this.hideCategoryManager()
+			this.showCategoryEditModal = true
+		},
+		
+		/**
+		 * 隐藏分类编辑弹窗
+		 */
+		hideCategoryEditModal() {
+			this.showCategoryEditModal = false
+			this.editingCategory = null
+		},
+		
+		/**
+		 * 选择图标
+		 */
+		selectIcon(icon) {
+			this.categoryForm.icon = icon
+		},
+		
+		/**
+		 * 选择颜色
+		 */
+		selectColor(color) {
+			this.categoryForm.color = color
+		},
+		
+		/**
+		 * 保存分类表单
+		 */
+		async saveCategoryForm() {
+			if (!this.categoryForm.name.trim()) {
+				uni.showToast({
+					title: '请输入分类名称',
+					icon: 'none'
+				})
+				return
+			}
+			
+			try {
+				uni.showLoading({ title: '保存中...' })
+				
+				const categoryData = {
+					name: this.categoryForm.name.trim(),
+					icon: this.categoryForm.icon,
+					color: this.categoryForm.color,
+					type: this.recordType
+				}
+				
+				if (this.editingCategory) {
+					// 更新分类
+					await DataManager.updateCategory(this.editingCategory.id, categoryData)
+					uni.showToast({
+						title: '分类更新成功',
+						icon: 'success'
+					})
+				} else {
+					// 添加新分类
+					await DataManager.addCategory(categoryData)
+					uni.showToast({
+						title: '分类添加成功',
+						icon: 'success'
+					})
+				}
+				
+				// 重新加载分类数据
+				await this.reloadCategories()
+				
+				// 关闭弹窗
+				this.hideCategoryEditModal()
+				
+			} catch (error) {
+				console.error('保存分类失败:', error)
+				uni.showToast({
+					title: error.message || '保存失败',
+					icon: 'none'
+				})
+			} finally {
+				uni.hideLoading()
+			}
+		},
+		
+		/**
+		 * 删除分类
+		 */
+		async deleteCategory(category) {
+			uni.showModal({
+				title: '删除确认',
+				content: `确定要删除分类"${category.name}"吗？`,
+				success: async (res) => {
+					if (res.confirm) {
+						try {
+							uni.showLoading({ title: '删除中...' })
+							
+							await DataManager.deleteCategory(category.id)
+							
+							uni.showToast({
+								title: '删除成功',
+								icon: 'success'
+							})
+							
+							// 重新加载分类数据
+							await this.reloadCategories()
+							
+							// 如果删除的是当前选中的分类，重置选择
+							if (this.selectedCategory && this.selectedCategory.id === category.id) {
+								this.selectedCategory = null
+							}
+							
+						} catch (error) {
+							console.error('删除分类失败:', error)
+							uni.showToast({
+								title: error.message || '删除失败',
+								icon: 'none'
+							})
+						} finally {
+							uni.hideLoading()
+						}
+					}
+				}
+			})
+		},
+		
+		/**
+		 * 重新加载分类数据
+		 */
+		async reloadCategories() {
+			this.expenseCategories = await DataManager.getCategories('expense')
+			this.incomeCategories = await DataManager.getCategories('income')
+			
+			// 如果当前没有选中分类，自动选择第一个
+			if (!this.selectedCategory && this.currentCategories.length > 0) {
+				this.selectedCategory = this.currentCategories[0]
+			}
 		}
 	}
 }
@@ -845,5 +1148,246 @@ export default {
 	font-size: 32rpx;
 	color: #FF8A65;
 	font-weight: bold;
+}
+
+/* 分类管理样式 */
+.category-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 32rpx;
+}
+
+.category-manage-btn {
+	display: flex;
+	align-items: center;
+	gap: 8rpx;
+	padding: 16rpx 24rpx;
+	background: #F3F4F6;
+	border-radius: 20rpx;
+	border: 1px solid #E5E7EB;
+}
+
+.manage-icon {
+	font-size: 24rpx;
+}
+
+.manage-text {
+	font-size: 24rpx;
+	color: #6B7280;
+	font-weight: 500;
+}
+
+.add-category-item {
+	border: 2rpx dashed #E5E7EB !important;
+	background: #FAFAFA !important;
+}
+
+.add-icon {
+	background: #F3F4F6 !important;
+	color: #9CA3AF;
+}
+
+/* 分类管理弹窗 */
+.category-manager-modal {
+	background: white;
+	border-radius: 32rpx;
+	margin: 48rpx;
+	max-height: 80vh;
+	width: 100%;
+	max-width: 600rpx;
+	overflow: hidden;
+}
+
+.category-manager-content {
+	max-height: 60vh;
+	overflow-y: auto;
+}
+
+.category-manager-list {
+	padding: 0 48rpx 48rpx 48rpx;
+}
+
+.category-manager-item {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 24rpx 0;
+	border-bottom: 1px solid #F9FAFB;
+}
+
+.category-manager-item:last-child {
+	border-bottom: none;
+}
+
+.category-info {
+	display: flex;
+	align-items: center;
+	gap: 24rpx;
+	flex: 1;
+}
+
+.category-actions {
+	display: flex;
+	gap: 16rpx;
+}
+
+.action-btn {
+	padding: 12rpx 24rpx;
+	border-radius: 16rpx;
+	font-size: 24rpx;
+}
+
+.edit-btn {
+	background: #EBF8FF;
+	border: 1px solid #3182CE;
+}
+
+.edit-btn .action-text {
+	color: #3182CE;
+}
+
+.delete-btn {
+	background: #FED7D7;
+	border: 1px solid #E53E3E;
+}
+
+.delete-btn .action-text {
+	color: #E53E3E;
+}
+
+/* 分类编辑弹窗 */
+.category-edit-modal {
+	background: white;
+	border-radius: 32rpx;
+	margin: 48rpx;
+	max-height: 90vh;
+	width: 100%;
+	max-width: 600rpx;
+	overflow: hidden;
+}
+
+.category-edit-content {
+	padding: 48rpx;
+	max-height: 80vh;
+	overflow-y: auto;
+}
+
+.form-group {
+	margin-bottom: 48rpx;
+}
+
+.form-label {
+	display: block;
+	font-size: 32rpx;
+	font-weight: 600;
+	color: #1F2937;
+	margin-bottom: 24rpx;
+}
+
+.form-input {
+	width: 100%;
+	padding: 24rpx;
+	background: #F9FAFB;
+	border: 1px solid #E5E7EB;
+	border-radius: 16rpx;
+	font-size: 32rpx;
+	color: #374151;
+}
+
+.form-input:focus {
+	border-color: #FF8A65;
+	background: white;
+}
+
+/* 图标网格 */
+.icon-grid {
+	display: grid;
+	grid-template-columns: repeat(6, 1fr);
+	gap: 16rpx;
+}
+
+.icon-option {
+	aspect-ratio: 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: #F9FAFB;
+	border: 2rpx solid #E5E7EB;
+	border-radius: 16rpx;
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+
+.icon-option.selected {
+	background: #FFF3E0;
+	border-color: #FF8A65;
+	transform: scale(1.05);
+}
+
+.icon-emoji {
+	font-size: 32rpx;
+}
+
+/* 颜色网格 */
+.color-grid {
+	display: grid;
+	grid-template-columns: repeat(6, 1fr);
+	gap: 16rpx;
+}
+
+.color-option {
+	aspect-ratio: 1;
+	border-radius: 50%;
+	border: 3rpx solid transparent;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	position: relative;
+}
+
+.color-option.selected {
+	border-color: #1F2937;
+	transform: scale(1.1);
+}
+
+.color-check {
+	color: white;
+	font-size: 24rpx;
+	font-weight: bold;
+	text-shadow: 0 0 4rpx rgba(0, 0, 0, 0.5);
+}
+
+/* 表单操作按钮 */
+.form-actions {
+	display: flex;
+	gap: 24rpx;
+	margin-top: 48rpx;
+}
+
+.form-btn {
+	flex: 1;
+	padding: 24rpx;
+	border-radius: 16rpx;
+	font-size: 32rpx;
+	font-weight: 600;
+	border: none;
+}
+
+.cancel-btn {
+	background: #F3F4F6;
+	color: #6B7280;
+}
+
+.save-btn {
+	background: linear-gradient(135deg, #EF5350, #E57373);
+	color: white;
+}
+
+.save-btn.disabled {
+	background: #D1D5DB;
+	color: #9CA3AF;
 }
 </style>

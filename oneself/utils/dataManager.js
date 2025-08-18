@@ -32,6 +32,9 @@ class DataManager {
         console.log('[DataManager] 首次运行，已初始化默认数据')
       }
       
+      // 检查数据版本，进行必要的迁移
+      await this.migrateData()
+      
       this.isInitialized = true
       console.log('[DataManager] 初始化完成')
       
@@ -71,6 +74,46 @@ class DataManager {
     this.storage.setSync('app_settings', defaultSettings)
     
     console.log('[DataManager] 默认数据初始化完成')
+  }
+
+  /**
+   * 数据迁移
+   */
+  async migrateData() {
+    const currentVersion = this.storage.getSync('data_version', '1.0.0')
+    
+    // 如果版本低于1.1.0，需要为交易记录添加分类颜色
+    if (currentVersion < '1.1.0') {
+      console.log('[DataManager] 开始数据迁移: 添加分类颜色...')
+      
+      const transactions = this.storage.getSync('transactions', [])
+      const categories = this.storage.getSync('categories', [])
+      
+      // 创建分类颜色映射
+      const categoryColorMap = {}
+      categories.forEach(cat => {
+        categoryColorMap[cat.id] = cat.color
+      })
+      
+      // 为现有交易记录添加分类颜色
+      let updatedCount = 0
+      transactions.forEach(transaction => {
+        if (!transaction.categoryColor && transaction.categoryId) {
+          transaction.categoryColor = categoryColorMap[transaction.categoryId] || '#FF8A65'
+          updatedCount++
+        }
+      })
+      
+      // 保存更新后的交易记录
+      if (updatedCount > 0) {
+        this.storage.setSync('transactions', transactions)
+        console.log(`[DataManager] 已为 ${updatedCount} 条交易记录添加分类颜色`)
+      }
+      
+      // 更新数据版本
+      this.storage.setSync('data_version', '1.1.0')
+      console.log('[DataManager] 数据迁移完成')
+    }
   }
 
   // ==================== 交易记录管理 ====================
@@ -282,6 +325,113 @@ class DataManager {
     return category ? new Category(category) : null
   }
 
+  /**
+   * 添加新分类
+   */
+  async addCategory(categoryData) {
+    try {
+      await this.ensureInitialized()
+      
+      const category = new Category({
+        ...categoryData,
+        isCustom: true,
+        sortOrder: categoryData.sortOrder || 999
+      })
+      
+      const categories = this.storage.getSync('categories', [])
+      categories.push(category)
+      
+      this.storage.setSync('categories', categories)
+      
+      console.log('[DataManager] 分类添加成功:', category.id)
+      
+      // 触发同步
+      this.triggerSync('category_add', category)
+      
+      return category
+    } catch (error) {
+      console.error('[DataManager] 添加分类失败:', error)
+      throw error
+    }
+  }
+
+  /**
+   * 更新分类
+   */
+  async updateCategory(id, updateData) {
+    try {
+      await this.ensureInitialized()
+      
+      const categories = this.storage.getSync('categories', [])
+      const categoryIndex = categories.findIndex(c => c.id === id)
+      
+      if (categoryIndex === -1) {
+        throw new Error('分类不存在')
+      }
+      
+      // 更新分类数据
+      categories[categoryIndex] = {
+        ...categories[categoryIndex],
+        ...updateData,
+        updatedAt: new Date().toISOString()
+      }
+      
+      this.storage.setSync('categories', categories)
+      
+      const updatedCategory = new Category(categories[categoryIndex])
+      
+      console.log('[DataManager] 分类更新成功:', id)
+      
+      // 触发同步
+      this.triggerSync('category_update', updatedCategory)
+      
+      return updatedCategory
+    } catch (error) {
+      console.error('[DataManager] 更新分类失败:', error)
+      throw error
+    }
+  }
+
+  /**
+   * 删除分类
+   */
+  async deleteCategory(id) {
+    try {
+      await this.ensureInitialized()
+      
+      // 检查是否有交易使用了这个分类
+      const transactions = this.storage.getSync('transactions', [])
+      const hasTransactions = transactions.some(t => t.categoryId === id && !t.isDeleted)
+      
+      if (hasTransactions) {
+        throw new Error('该分类下还有交易记录，无法删除')
+      }
+      
+      const categories = this.storage.getSync('categories', [])
+      const categoryIndex = categories.findIndex(c => c.id === id)
+      
+      if (categoryIndex === -1) {
+        throw new Error('分类不存在')
+      }
+      
+      // 软删除
+      categories[categoryIndex].isDeleted = true
+      categories[categoryIndex].updatedAt = new Date().toISOString()
+      
+      this.storage.setSync('categories', categories)
+      
+      console.log('[DataManager] 分类删除成功:', id)
+      
+      // 触发同步
+      this.triggerSync('category_delete', { id })
+      
+      return true
+    } catch (error) {
+      console.error('[DataManager] 删除分类失败:', error)
+      throw error
+    }
+  }
+
   // ==================== 账户管理 ====================
 
   /**
@@ -373,6 +523,7 @@ class DataManager {
           categoryId: transaction.categoryId,
           categoryName: transaction.categoryName,
           categoryIcon: transaction.categoryIcon,
+          categoryColor: transaction.categoryColor, // 添加分类颜色
           type: transaction.type,
           amount: 0,
           count: 0
