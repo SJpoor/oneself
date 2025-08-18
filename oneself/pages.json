@@ -6,6 +6,41 @@
 				"navigationStyle": "custom",
 				"navigationBarTitleText": "生活管理"
 			}
+		},
+		{
+			"path": "pages/accounting/index",
+			"style": {
+				"navigationStyle": "custom",
+				"navigationBarTitleText": "我的账本"
+			}
+		},
+		{
+			"path": "pages/accounting/add",
+			"style": {
+				"navigationStyle": "custom",
+				"navigationBarTitleText": "记一笔"
+			}
+		},
+		{
+			"path": "pages/accounting/detail",
+			"style": {
+				"navigationStyle": "custom",
+				"navigationBarTitleText": "账目详情"
+			}
+		},
+		{
+			"path": "pages/accounting/edit",
+			"style": {
+				"navigationStyle": "custom",
+				"navigationBarTitleText": "编辑记录"
+			}
+		},
+		{
+			"path": "pages/accounting/stats",
+			"style": {
+				"navigationStyle": "custom",
+				"navigationBarTitleText": "收支统计"
+			}
 		}
 	],
 	"globalStyle": {

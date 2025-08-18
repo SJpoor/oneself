@@ -1,0 +1,292 @@
+
+/* 页面容器 */
+.page-container[data-v-01e349ce] {
+	min-height: 100vh;
+	background: #FFFFFF;
+	padding-bottom: 5rem;
+}
+
+/* 头部区域 */
+.header-section[data-v-01e349ce] {
+	padding: 1.5rem 1.5rem 1.5rem 1.5rem;
+}
+.header-top[data-v-01e349ce] {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+.back-btn[data-v-01e349ce], .filter-btn[data-v-01e349ce] {
+	width: 2.5rem;
+	height: 2.5rem;
+	background: #F3F4F6;
+	border-radius: 0.75rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.back-icon[data-v-01e349ce] {
+	font-size: 1.25rem;
+	color: #6B7280;
+	font-weight: 300;
+}
+.filter-icon[data-v-01e349ce] {
+	font-size: 1.25rem;
+}
+.header-title[data-v-01e349ce] {
+	font-size: 1.125rem;
+	font-weight: 600;
+	color: #1F2937;
+}
+
+/* 当期概览 */
+.overview-section[data-v-01e349ce] {
+	padding: 0 1.5rem 1.5rem 1.5rem;
+}
+.overview-card[data-v-01e349ce] {
+	background: rgba(255, 255, 255, 0.9);
+	-webkit-backdrop-filter: blur(1.25rem);
+	        backdrop-filter: blur(1.25rem);
+	border: 1px solid rgba(255, 138, 101, 0.2);
+	border-radius: 1rem;
+	padding: 1.25rem;
+	box-shadow: 0 0.5rem 2rem rgba(255, 138, 101, 0.15);
+}
+.overview-header[data-v-01e349ce] {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 1rem;
+}
+.overview-title[data-v-01e349ce] {
+	font-size: 1.125rem;
+	font-weight: 600;
+	color: #1F2937;
+}
+.record-count[data-v-01e349ce] {
+	font-size: 0.875rem;
+	color: #6B7280;
+}
+.amount-summary[data-v-01e349ce] {
+	display: flex;
+	gap: 1rem;
+	margin-bottom: 1rem;
+}
+.summary-item[data-v-01e349ce] {
+	flex: 1;
+	text-align: center;
+}
+.summary-amount.income[data-v-01e349ce] {
+	display: block;
+	color: #66BB6A;
+	font-size: 1.25rem;
+	font-weight: bold;
+}
+.summary-amount.expense[data-v-01e349ce] {
+	display: block;
+	color: #EF5350;
+	font-size: 1.25rem;
+	font-weight: bold;
+}
+.summary-label[data-v-01e349ce] {
+	display: block;
+	color: #6B7280;
+	font-size: 0.875rem;
+	margin-top: 0.25rem;
+}
+.net-amount-section[data-v-01e349ce] {
+	padding-top: 1rem;
+	border-top: 1px solid #E5E7EB;
+}
+.net-amount-row[data-v-01e349ce] {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+.net-label[data-v-01e349ce] {
+	color: #6B7280;
+	font-size: 1rem;
+}
+.net-amount[data-v-01e349ce] {
+	font-size: 1.25rem;
+	font-weight: bold;
+}
+.net-amount.positive[data-v-01e349ce] {
+	color: #66BB6A;
+}
+.net-amount.negative[data-v-01e349ce] {
+	color: #EF5350;
+}
+
+/* 筛选标签 */
+.filter-section[data-v-01e349ce] {
+	padding: 0 1.5rem 1rem 1.5rem;
+}
+.filter-scroll[data-v-01e349ce] {
+	width: 100%;
+}
+.filter-tags[data-v-01e349ce] {
+	display: flex;
+	gap: 0.5rem;
+	white-space: nowrap;
+}
+.filter-tag[data-v-01e349ce] {
+	padding: 0.5rem 1rem;
+	background: #F3F4F6;
+	border-radius: 1.5625rem;
+	flex-shrink: 0;
+}
+.filter-tag.active[data-v-01e349ce] {
+	background: #FF8A65;
+}
+.tag-text[data-v-01e349ce] {
+	color: #6B7280;
+	font-size: 0.875rem;
+	font-weight: 500;
+}
+.filter-tag.active .tag-text[data-v-01e349ce] {
+	color: white;
+}
+
+/* 记录列表 */
+.records-section[data-v-01e349ce] {
+	padding: 0 1.5rem;
+}
+.record-item[data-v-01e349ce] {
+	background: rgba(255, 255, 255, 0.9);
+	-webkit-backdrop-filter: blur(1.25rem);
+	        backdrop-filter: blur(1.25rem);
+	border: 1px solid rgba(255, 138, 101, 0.2);
+	border-radius: 1rem;
+	padding: 1rem;
+	margin-bottom: 0.75rem;
+	box-shadow: 0 0.5rem 2rem rgba(255, 138, 101, 0.15);
+}
+.record-content[data-v-01e349ce] {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+.record-left[data-v-01e349ce] {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	flex: 1;
+}
+.record-icon[data-v-01e349ce] {
+	width: 3rem;
+	height: 3rem;
+	border-radius: 0.75rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.record-emoji[data-v-01e349ce] {
+	font-size: 1.5rem;
+}
+.record-info[data-v-01e349ce] {
+	display: flex;
+	flex-direction: column;
+}
+.record-title[data-v-01e349ce] {
+	font-weight: 500;
+	color: #1F2937;
+	font-size: 1rem;
+}
+.record-subtitle[data-v-01e349ce] {
+	color: #6B7280;
+	font-size: 0.875rem;
+	margin-top: 0.125rem;
+}
+.record-right[data-v-01e349ce] {
+	text-align: right;
+}
+.record-amount[data-v-01e349ce] {
+	font-weight: 600;
+	font-size: 1rem;
+}
+.record-amount.income[data-v-01e349ce] {
+	color: #66BB6A;
+}
+.record-amount.expense[data-v-01e349ce] {
+	color: #EF5350;
+}
+
+/* 空状态 */
+.empty-state[data-v-01e349ce] {
+	text-align: center;
+	padding: 2rem 0;
+}
+.empty-icon[data-v-01e349ce] {
+	width: 4rem;
+	height: 4rem;
+	background: #F3F4F6;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin: 0 auto 0.75rem auto;
+}
+.empty-emoji[data-v-01e349ce] {
+	font-size: 2rem;
+}
+.empty-title[data-v-01e349ce] {
+	display: block;
+	color: #6B7280;
+	font-size: 0.875rem;
+	margin-bottom: 0.25rem;
+}
+.empty-subtitle[data-v-01e349ce] {
+	display: block;
+	color: #9CA3AF;
+	font-size: 0.75rem;
+}
+
+/* 底部导航 */
+.bottom-nav[data-v-01e349ce] {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	background: rgba(255, 255, 255, 0.8);
+	-webkit-backdrop-filter: blur(1.25rem);
+	        backdrop-filter: blur(1.25rem);
+	border-top: 1px solid #E5E7EB;
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
+	padding: 0.75rem 0;
+}
+.nav-item[data-v-01e349ce] {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.25rem;
+}
+.nav-emoji[data-v-01e349ce] {
+	font-size: 1.5rem;
+}
+.nav-label[data-v-01e349ce] {
+	color: #9CA3AF;
+	font-size: 0.75rem;
+}
+.nav-item.active[data-v-01e349ce] {
+	color: #FF8A65;
+}
+.nav-icon-active[data-v-01e349ce] {
+	width: 2rem;
+	height: 2rem;
+	background: linear-gradient(135deg, #FF8A65, #FFB74D);
+	border-radius: 0.75rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.nav-icon-active .nav-emoji[data-v-01e349ce] {
+	filter: brightness(0) invert(1);
+	font-size: 1rem;
+}
+.nav-label-active[data-v-01e349ce] {
+	color: #FF8A65;
+	font-size: 0.75rem;
+	font-weight: 500;
+}

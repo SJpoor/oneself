@@ -1,0 +1,347 @@
+
+/* 页面容器 */
+.page-container[data-v-1619521b] {
+	min-height: 100vh;
+	background: #FFFFFF;
+	position: relative;
+}
+
+/* 头部区域 */
+.header-section[data-v-1619521b] {
+	padding: 1.5rem 1.5rem 1.5rem 1.5rem;
+}
+.header-top[data-v-1619521b] {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+.back-btn[data-v-1619521b], .calendar-btn[data-v-1619521b] {
+	width: 2.5rem;
+	height: 2.5rem;
+	background: #F3F4F6;
+	border-radius: 0.75rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.back-icon[data-v-1619521b] {
+	font-size: 1.25rem;
+	color: #6B7280;
+	font-weight: 300;
+}
+.calendar-icon[data-v-1619521b] {
+	font-size: 1.25rem;
+}
+.header-title[data-v-1619521b] {
+	font-size: 1.125rem;
+	font-weight: 600;
+	color: #1F2937;
+}
+
+/* 收支切换 */
+.type-switch-section[data-v-1619521b] {
+	padding: 0 1.5rem 1.5rem 1.5rem;
+}
+.type-switch[data-v-1619521b] {
+	background: rgba(255, 255, 255, 0.9);
+	-webkit-backdrop-filter: blur(1.25rem);
+	        backdrop-filter: blur(1.25rem);
+	border: 1px solid rgba(255, 138, 101, 0.2);
+	border-radius: 1rem;
+	padding: 0.5rem;
+	display: flex;
+	box-shadow: 0 0.5rem 2rem rgba(255, 138, 101, 0.15);
+}
+.switch-btn[data-v-1619521b] {
+	flex: 1;
+	padding: 0.75rem;
+	border-radius: 0.75rem;
+	text-align: center;
+}
+.switch-btn.active[data-v-1619521b] {
+	background: linear-gradient(135deg, #EF5350, #E57373);
+}
+.switch-text[data-v-1619521b] {
+	color: #6B7280;
+	font-weight: 500;
+	font-size: 1rem;
+}
+.switch-btn.active .switch-text[data-v-1619521b] {
+	color: white;
+}
+
+/* 金额输入 */
+.amount-section[data-v-1619521b] {
+	padding: 0 1.5rem 2rem 1.5rem;
+}
+.amount-container[data-v-1619521b] {
+	text-align: center;
+}
+.amount-label[data-v-1619521b] {
+	display: block;
+	color: #6B7280;
+	font-size: 0.875rem;
+	margin-bottom: 0.5rem;
+}
+.amount-input-row[data-v-1619521b] {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.currency-symbol[data-v-1619521b] {
+	font-size: 2.25rem;
+	font-weight: bold;
+	color: #FF8A65;
+	margin-right: 0.5rem;
+}
+.amount-input[data-v-1619521b] {
+	font-size: 2.25rem;
+	font-weight: bold;
+	color: #FF8A65;
+	text-align: center;
+	background: none;
+	border: none;
+	outline: none;
+	min-width: 6.25rem;
+	caret-color: #FF8A65;
+}
+.amount-input[data-v-1619521b]:focus {
+	color: #E65100;
+}
+
+/* 分类选择 */
+.category-section[data-v-1619521b] {
+	padding: 0 1.5rem 1.5rem 1.5rem;
+}
+.section-title[data-v-1619521b] {
+	font-size: 1.125rem;
+	font-weight: 600;
+	color: #1F2937;
+	margin-bottom: 1rem;
+	display: block;
+}
+.category-grid[data-v-1619521b] {
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	gap: 1rem;
+}
+.category-item[data-v-1619521b] {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.75rem;
+	border-radius: 1rem;
+	cursor: pointer;
+}
+.category-item.selected[data-v-1619521b] {
+	background: #FFF3E0;
+	border: 0.125rem solid #FF8A65;
+}
+.category-icon[data-v-1619521b] {
+	width: 3rem;
+	height: 3rem;
+	border-radius: 0.75rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.category-emoji[data-v-1619521b] {
+	font-size: 1.5rem;
+}
+.category-name[data-v-1619521b] {
+	font-size: 0.75rem;
+	font-weight: 500;
+	color: #374151;
+}
+
+/* 备注输入 */
+.note-section[data-v-1619521b] {
+	padding: 0 1.5rem 1.5rem 1.5rem;
+}
+.note-container[data-v-1619521b] {
+	background: rgba(255, 255, 255, 0.9);
+	-webkit-backdrop-filter: blur(1.25rem);
+	        backdrop-filter: blur(1.25rem);
+	border: 1px solid rgba(255, 138, 101, 0.2);
+	border-radius: 1rem;
+	padding: 1rem;
+	box-shadow: 0 0.5rem 2rem rgba(255, 138, 101, 0.15);
+}
+.note-input[data-v-1619521b] {
+	width: 100%;
+	background: transparent;
+	color: #374151;
+	font-size: 1rem;
+}
+
+/* 底部保存按钮 */
+.save-section[data-v-1619521b] {
+	position: fixed;
+	bottom: 1.5rem;
+	left: 1.5rem;
+	right: 1.5rem;
+}
+.save-btn[data-v-1619521b] {
+	width: 100%;
+	padding: 1rem;
+	background: linear-gradient(135deg, #EF5350, #E57373);
+	color: white;
+	font-weight: 600;
+	font-size: 1rem;
+	border-radius: 1rem;
+	border: none;
+	transition: transform 0.2s ease;
+}
+.save-btn[data-v-1619521b]:active {
+	transform: scale(0.95);
+}
+.save-btn.disabled[data-v-1619521b] {
+	background: #D1D5DB;
+	color: #9CA3AF;
+}
+
+/* 账户选择 */
+.account-section[data-v-1619521b] {
+	padding: 0 1.5rem 1.5rem 1.5rem;
+}
+.account-selector[data-v-1619521b] {
+	background: rgba(255, 255, 255, 0.9);
+	-webkit-backdrop-filter: blur(1.25rem);
+	        backdrop-filter: blur(1.25rem);
+	border: 1px solid rgba(255, 138, 101, 0.2);
+	border-radius: 1rem;
+	padding: 1rem;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	box-shadow: 0 0.5rem 2rem rgba(255, 138, 101, 0.15);
+}
+.account-info[data-v-1619521b] {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+}
+.account-icon[data-v-1619521b] {
+	width: 2.5rem;
+	height: 2.5rem;
+	border-radius: 0.625rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.account-emoji[data-v-1619521b] {
+	font-size: 1.25rem;
+}
+.account-name[data-v-1619521b] {
+	font-size: 1rem;
+	font-weight: 500;
+	color: #374151;
+}
+.selector-arrow[data-v-1619521b] {
+	font-size: 1.5rem;
+	color: #9CA3AF;
+	font-weight: 300;
+}
+
+/* 日期选择 */
+.date-section[data-v-1619521b] {
+	padding: 0 1.5rem 1.5rem 1.5rem;
+}
+.date-selector[data-v-1619521b] {
+	background: rgba(255, 255, 255, 0.9);
+	-webkit-backdrop-filter: blur(1.25rem);
+	        backdrop-filter: blur(1.25rem);
+	border: 1px solid rgba(255, 138, 101, 0.2);
+	border-radius: 1rem;
+	padding: 1rem;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	box-shadow: 0 0.5rem 2rem rgba(255, 138, 101, 0.15);
+}
+.date-text[data-v-1619521b] {
+	font-size: 1rem;
+	font-weight: 500;
+	color: #374151;
+}
+
+/* 弹窗样式 */
+.modal-overlay[data-v-1619521b] {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, 0.5);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 1000;
+}
+.date-picker-modal[data-v-1619521b],
+.account-picker-modal[data-v-1619521b] {
+	background: white;
+	border-radius: 1rem;
+	margin: 1.5rem;
+	max-height: 80vh;
+	width: 100%;
+	max-width: 18.75rem;
+	overflow: hidden;
+}
+.modal-header[data-v-1619521b] {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 1.5rem;
+	border-bottom: 1px solid #F3F4F6;
+}
+.modal-title[data-v-1619521b] {
+	font-size: 1.125rem;
+	font-weight: 600;
+	color: #1F2937;
+}
+.modal-close[data-v-1619521b] {
+	width: 2rem;
+	height: 2rem;
+	border-radius: 0.5rem;
+	background: #F3F4F6;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 1rem;
+	color: #6B7280;
+}
+.date-picker-trigger[data-v-1619521b] {
+	padding: 1.5rem;
+	text-align: center;
+	font-size: 1rem;
+	color: #374151;
+}
+
+/* 账户列表 */
+.account-list[data-v-1619521b] {
+	max-height: 60vh;
+	overflow-y: auto;
+}
+.account-item[data-v-1619521b] {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	padding: 1rem 1.5rem;
+	border-bottom: 1px solid #F9FAFB;
+}
+.account-item[data-v-1619521b]:last-child {
+	border-bottom: none;
+}
+.account-item.selected[data-v-1619521b] {
+	background: #FFF3E0;
+}
+.account-item .account-name[data-v-1619521b] {
+	flex: 1;
+}
+.check-icon[data-v-1619521b] {
+	font-size: 1rem;
+	color: #FF8A65;
+	font-weight: bold;
+}

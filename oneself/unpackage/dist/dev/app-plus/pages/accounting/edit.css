@@ -1,0 +1,253 @@
+
+/* 页面容器 */
+.page-container[data-v-709a8ac2] {
+	min-height: 100vh;
+	background: #FFFFFF;
+	position: relative;
+	padding-bottom: 6.25rem;
+}
+
+/* 头部区域 */
+.header-section[data-v-709a8ac2] {
+	padding: 1.5rem 1.5rem 1.5rem 1.5rem;
+}
+.header-top[data-v-709a8ac2] {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+.back-btn[data-v-709a8ac2], .delete-btn[data-v-709a8ac2] {
+	width: 2.5rem;
+	height: 2.5rem;
+	border-radius: 0.75rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.back-btn[data-v-709a8ac2] {
+	background: #F3F4F6;
+}
+.delete-btn[data-v-709a8ac2] {
+	background: #FEE2E2;
+}
+.back-icon[data-v-709a8ac2] {
+	font-size: 1.25rem;
+	color: #6B7280;
+	font-weight: 300;
+}
+.delete-icon[data-v-709a8ac2] {
+	font-size: 1.25rem;
+}
+.header-title[data-v-709a8ac2] {
+	font-size: 1.125rem;
+	font-weight: 600;
+	color: #1F2937;
+}
+
+/* 原记录信息 */
+.original-record-section[data-v-709a8ac2] {
+	padding: 0 1.5rem 1.5rem 1.5rem;
+}
+.original-card[data-v-709a8ac2] {
+	background: rgba(255, 255, 255, 0.9);
+	-webkit-backdrop-filter: blur(1.25rem);
+	        backdrop-filter: blur(1.25rem);
+	border: 1px solid rgba(255, 138, 101, 0.2);
+	border-left: 0.25rem solid #FF8A65;
+	border-radius: 1rem;
+	padding: 1.25rem;
+	box-shadow: 0 0.5rem 2rem rgba(255, 138, 101, 0.15);
+}
+.original-header[data-v-709a8ac2] {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 0.75rem;
+}
+.original-title[data-v-709a8ac2] {
+	font-weight: 600;
+	color: #1F2937;
+	font-size: 1rem;
+}
+.original-time[data-v-709a8ac2] {
+	color: #6B7280;
+	font-size: 0.875rem;
+}
+.original-content[data-v-709a8ac2] {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+.original-left[data-v-709a8ac2] {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	flex: 1;
+}
+.original-icon[data-v-709a8ac2] {
+	width: 3rem;
+	height: 3rem;
+	border-radius: 0.75rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.original-emoji[data-v-709a8ac2] {
+	font-size: 1.5rem;
+}
+.original-info[data-v-709a8ac2] {
+	display: flex;
+	flex-direction: column;
+}
+.original-record-title[data-v-709a8ac2] {
+	font-weight: 500;
+	color: #1F2937;
+	font-size: 1rem;
+}
+.original-category[data-v-709a8ac2] {
+	color: #6B7280;
+	font-size: 0.875rem;
+	margin-top: 0.125rem;
+}
+.original-right[data-v-709a8ac2] {
+	text-align: right;
+}
+.original-amount[data-v-709a8ac2] {
+	font-size: 1.5rem;
+	font-weight: bold;
+}
+.original-amount.income[data-v-709a8ac2] {
+	color: #66BB6A;
+}
+.original-amount.expense[data-v-709a8ac2] {
+	color: #EF5350;
+}
+
+/* 编辑表单 */
+.edit-form-section[data-v-709a8ac2] {
+	padding: 0 1.5rem;
+}
+.form-item[data-v-709a8ac2] {
+	margin-bottom: 1rem;
+}
+.form-label[data-v-709a8ac2] {
+	display: block;
+	color: #374151;
+	font-size: 0.875rem;
+	font-weight: 500;
+	margin-bottom: 0.5rem;
+}
+.form-input-container[data-v-709a8ac2] {
+	background: rgba(255, 255, 255, 0.9);
+	-webkit-backdrop-filter: blur(1.25rem);
+	        backdrop-filter: blur(1.25rem);
+	border: 1px solid rgba(255, 138, 101, 0.2);
+	border-radius: 1rem;
+	padding: 1rem;
+	box-shadow: 0 0.5rem 2rem rgba(255, 138, 101, 0.15);
+}
+
+/* 金额输入 */
+.amount-input-row[data-v-709a8ac2] {
+	display: flex;
+	align-items: center;
+}
+.currency-symbol[data-v-709a8ac2] {
+	font-size: 1.25rem;
+	font-weight: bold;
+	color: #FF8A65;
+	margin-right: 0.5rem;
+}
+.amount-input[data-v-709a8ac2] {
+	flex: 1;
+	font-size: 1.25rem;
+	font-weight: bold;
+	color: #FF8A65;
+	background: none;
+	border: none;
+}
+
+/* 分类显示 */
+.category-display[data-v-709a8ac2], .account-display[data-v-709a8ac2] {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	flex: 1;
+}
+.category-icon[data-v-709a8ac2], .account-icon[data-v-709a8ac2] {
+	width: 2.5rem;
+	height: 2.5rem;
+	border-radius: 0.625rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.account-icon[data-v-709a8ac2] {
+	background: #DBEAFE;
+}
+.category-emoji[data-v-709a8ac2], .account-emoji[data-v-709a8ac2] {
+	font-size: 1.25rem;
+}
+.category-name[data-v-709a8ac2], .account-name[data-v-709a8ac2] {
+	font-weight: 500;
+	color: #1F2937;
+	font-size: 1rem;
+}
+.form-input-container[data-v-709a8ac2] {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+.chevron-icon[data-v-709a8ac2] {
+	color: #9CA3AF;
+	font-size: 1.25rem;
+	font-weight: 300;
+}
+
+/* 备注输入 */
+.note-input[data-v-709a8ac2] {
+	width: 100%;
+	background: transparent;
+	color: #374151;
+	font-size: 1rem;
+}
+
+/* 日期时间 */
+.datetime-text[data-v-709a8ac2] {
+	color: #374151;
+	font-size: 1rem;
+	flex: 1;
+}
+.calendar-icon[data-v-709a8ac2] {
+	font-size: 1.25rem;
+}
+
+/* 底部按钮 */
+.action-buttons[data-v-709a8ac2] {
+	position: fixed;
+	bottom: 1.5rem;
+	left: 1.5rem;
+	right: 1.5rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+}
+.save-btn[data-v-709a8ac2], .cancel-btn[data-v-709a8ac2] {
+	width: 100%;
+	padding: 1rem;
+	font-weight: 600;
+	font-size: 1rem;
+	border-radius: 1rem;
+	border: none;
+}
+.save-btn[data-v-709a8ac2] {
+	background: linear-gradient(135deg, #FF8A65, #FFB74D);
+	color: white;
+}
+.cancel-btn[data-v-709a8ac2] {
+	background: #F3F4F6;
+	color: #374151;
+}
+.save-btn[data-v-709a8ac2]:active, .cancel-btn[data-v-709a8ac2]:active {
+	transform: scale(0.95);
+}

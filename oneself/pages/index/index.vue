@@ -36,8 +36,8 @@
 					<view class="action-icon accounting-icon">
 						<text class="icon-emoji">💰</text>
 					</view>
-					<text class="action-title">记账</text>
-					<text class="action-subtitle">快速记录</text>
+					<text class="action-title">记一笔</text>
+					<text class="action-subtitle">添加记录</text>
 				</view>
 				
 				<!-- 日记入口 -->
@@ -66,10 +66,10 @@
 			<view class="stats-card glass-card">
 				<view class="stats-grid">
 					<view class="stat-item">
-						<text class="stat-number number-gradient">¥127</text>
+						<text class="stat-number number-gradient">¥{{ todayStats.expense.toFixed(2) }}</text>
 						<text class="stat-label">今日支出</text>
 						<view class="progress-bar">
-							<view class="progress-fill"></view>
+							<view class="progress-fill" :style="{ width: getExpenseProgress() }"></view>
 						</view>
 					</view>
 					<view class="stat-item stat-divider">
@@ -95,48 +95,28 @@
 		<!-- 近期活动时间线 -->
 		<view class="recent-activities">
 			<text class="section-title">近期活动</text>
-			<view class="activity-list">
-				<!-- 活动项 1 -->
-				<view class="activity-item">
-					<view class="activity-dot dot-primary"></view>
+			<view class="activity-list" v-if="recentActivities.length > 0">
+				<view class="activity-item" 
+					v-for="(activity, index) in recentActivities" 
+					:key="activity.id">
+					<view class="activity-dot" :class="getActivityDotClass(activity.type)"></view>
 					<view class="activity-content">
 						<view class="activity-card glass-card">
 							<view class="activity-header">
-								<text class="activity-title">午餐 - 海底捞</text>
-								<text class="activity-time">2小时前</text>
+								<text class="activity-title">{{ activity.title }}</text>
+								<text class="activity-time">{{ activity.timeText }}</text>
 							</view>
-							<text class="activity-desc">支出 ¥89</text>
+							<text class="activity-desc">{{ activity.description }}</text>
 						</view>
 					</view>
 				</view>
-				
-				<!-- 活动项 2 -->
-				<view class="activity-item">
-					<view class="activity-dot dot-secondary"></view>
-					<view class="activity-content">
-						<view class="activity-card glass-card">
-							<view class="activity-header">
-								<text class="activity-title">完成工作任务</text>
-								<text class="activity-time">3小时前</text>
-							</view>
-							<text class="activity-desc">待办任务已完成</text>
-						</view>
-					</view>
-				</view>
-				
-				<!-- 活动项 3 -->
-				<view class="activity-item">
-					<view class="activity-dot dot-accent"></view>
-					<view class="activity-content">
-						<view class="activity-card glass-card">
-							<view class="activity-header">
-								<text class="activity-title">写了今日感想</text>
-								<text class="activity-time">昨天</text>
-							</view>
-							<text class="activity-desc">心情：开心 😊</text>
-						</view>
-					</view>
-				</view>
+			</view>
+			
+			<!-- 空状态 -->
+			<view class="activity-empty" v-else>
+				<view class="empty-icon">📝</view>
+				<text class="empty-text">暂无近期活动</text>
+				<text class="empty-hint">开始记账创建第一个活动</text>
 			</view>
 		</view>
 		
@@ -148,7 +128,7 @@
 				</view>
 				<text class="nav-text nav-text-active">首页</text>
 			</view>
-			<view class="nav-item" @tap="navigateToAccounting">
+			<view class="nav-item" @tap="navigateToAccountingHome">
 				<text class="nav-emoji nav-emoji-inactive">💰</text>
 				<text class="nav-text nav-text-inactive">记账</text>
 			</view>
@@ -165,31 +145,166 @@
 </template>
 
 <script>
+import DataManager from '@/utils/dataManager.js'
+
 export default {
 	data() {
 		return {
-			
+					todayStats: {
+			expense: 0,
+			income: 0,
+			transactions: 0
+		},
+		loading: false,
+		recentActivities: []
 		}
 	},
-	onLoad() {
-		
+	
+	async onLoad() {
+		await Promise.all([
+			this.loadTodayStats(),
+			this.loadRecentActivities()
+		])
 	},
+	
+	async onShow() {
+		// 页面显示时刷新今日统计（从记账页面返回时）
+		await Promise.all([
+			this.loadTodayStats(),
+			this.loadRecentActivities()
+		])
+	},
+	
 	methods: {
+		/**
+		 * 加载今日统计数据
+		 */
+		async loadTodayStats() {
+			try {
+				this.loading = true
+				
+				// 获取今日统计数据
+				const stats = await DataManager.getStatistics('daily')
+				
+				this.todayStats = {
+					expense: stats.totalExpense,
+					income: stats.totalIncome,
+					transactions: stats.transactionCount
+				}
+				
+				console.log('[HomePage] 今日统计加载完成:', this.todayStats)
+				
+			} catch (error) {
+				console.error('[HomePage] 今日统计加载失败:', error)
+				// 静默失败，不影响页面显示
+			} finally {
+				this.loading = false
+			}
+		},
+		
+		/**
+		 * 获取支出进度条百分比
+		 */
+		getExpenseProgress() {
+			// 简单的进度计算，可以基于预算或者历史平均值
+			const maxExpense = 200 // 假设日预算200元
+			const progress = Math.min((this.todayStats.expense / maxExpense) * 100, 100)
+			return `${progress}%`
+		},
+		
+		/**
+		 * 加载近期活动数据
+		 */
+		async loadRecentActivities() {
+			try {
+				// 获取最近的交易记录作为活动
+				const result = await DataManager.getTransactions({
+					limit: 5, // 最近5条
+					offset: 0
+				})
+				
+				this.recentActivities = result.data.map(transaction => {
+					return {
+						id: transaction.id,
+						type: transaction.type,
+						title: transaction.note || `${transaction.categoryName}消费`,
+						timeText: this.formatActivityTime(transaction.date),
+						description: `${transaction.type === 'expense' ? '支出' : '收入'} ¥${transaction.amount.toFixed(2)}`
+					}
+				})
+				
+				console.log('[HomePage] 近期活动加载完成:', this.recentActivities.length)
+				
+			} catch (error) {
+				console.error('[HomePage] 近期活动加载失败:', error)
+				// 静默失败，不影响页面显示
+			}
+		},
+		
+		/**
+		 * 格式化活动时间
+		 */
+		formatActivityTime(dateString) {
+			const date = new Date(dateString)
+			const now = new Date()
+			const diffTime = now - date
+			const diffHours = Math.floor(diffTime / (1000 * 60 * 60))
+			const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24))
+			
+			if (diffHours < 1) {
+				const diffMinutes = Math.floor(diffTime / (1000 * 60))
+				return diffMinutes < 1 ? '刚刚' : `${diffMinutes}分钟前`
+			} else if (diffHours < 24) {
+				return `${diffHours}小时前`
+			} else if (diffDays === 1) {
+				return '昨天'
+			} else if (diffDays < 7) {
+				return `${diffDays}天前`
+			} else {
+				return date.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' })
+			}
+		},
+		
+		/**
+		 * 获取活动点样式类名
+		 */
+		getActivityDotClass(type) {
+			return type === 'expense' ? 'dot-primary' : 'dot-secondary'
+		},
+		
 		navigateToAccounting() {
-			console.log('导航到记账页面');
-			// 这里可以添加页面跳转逻辑
+			// 快速入口直接跳转到添加记账页面
+			uni.navigateTo({
+				url: '/pages/accounting/add'
+			})
 		},
+		
+		navigateToAccountingHome() {
+			// 底部导航跳转到记账主页
+			uni.navigateTo({
+				url: '/pages/accounting/index'
+			})
+		},
+		
 		navigateToDiary() {
-			console.log('导航到日记页面');
-			// 这里可以添加页面跳转逻辑
+			uni.showToast({
+				title: '日记功能开发中',
+				icon: 'none'
+			})
 		},
+		
 		navigateToTodo() {
-			console.log('导航到待办页面');
-			// 这里可以添加页面跳转逻辑
+			uni.showToast({
+				title: '待办功能开发中',
+				icon: 'none'
+			})
 		},
+		
 		navigateToSettings() {
-			console.log('导航到设置页面');
-			// 这里可以添加页面跳转逻辑
+			uni.showToast({
+				title: '设置功能开发中',
+				icon: 'none'
+			})
 		}
 	}
 }
@@ -563,6 +678,33 @@ export default {
 	font-size: 24rpx;
 	color: #6B7280;
 	display: block;
+}
+
+/* 活动空状态 */
+.activity-empty {
+	text-align: center;
+	padding: 60rpx 40rpx;
+	background: rgba(255, 255, 255, 0.25);
+	border-radius: 24rpx;
+	border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.activity-empty .empty-icon {
+	font-size: 80rpx;
+	margin-bottom: 24rpx;
+}
+
+.activity-empty .empty-text {
+	display: block;
+	font-size: 28rpx;
+	color: #6B7280;
+	margin-bottom: 12rpx;
+}
+
+.activity-empty .empty-hint {
+	display: block;
+	font-size: 24rpx;
+	color: #9CA3AF;
 }
 
 /* 底部导航栏 */
